@@ -1,0 +1,101 @@
+<style>
+    .layui-table-view tr td > div {
+        height: 80px;
+        line-height: 80px;
+    }
+
+    .layui-table img {
+        max-width: 100%;
+    }
+</style>
+
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<table class="layui-hide anime-table" id="table" lay-filter="table"></table>
+<script>
+    var tableIns;
+    layui.use('table', function () {
+        var table = layui.table;
+
+        tableIns = table.render({
+            elem: '#table'
+            , url: '/god/episode/list'
+            , title: '用户数据表'
+            , cols: [[
+                {field: '_id', title: 'ID', width: 240, fixed: 'left', unresize: true, sort: true}
+                , {
+                    field: 'title', title: '所属番剧', width: 200, templet: function (res) {
+                        if(!res.anime_info) return 'N/A';
+                        return res.anime_info.title;
+                    }
+                }
+                , {
+                    field: 'title', title: '标题', width: 200, templet: function (res) {
+                        return res.title + '.' + res.long_title;
+                    }
+                }
+                , {
+                    field: 'cover', title: '封面', width: 150, templet: function (res) {
+                        return '<img src="' + res.cover + '"/>';
+                    }
+                }
+                , {
+                    field: 'atime', title: '添加时间', width: 210, templet: function (res) {
+                        return formatDate(res.atime);
+                    }
+                }
+                , {
+                    field: 'atime', title: '下载完成时间', width: 210, templet: function (res) {
+                        return formatDate(res.complete_time);
+                    }
+                }
+                , {
+                    field: 'down_status', title: '当前状态', width: 120, templet: function (res) {
+                        switch (res.down_status){
+                            case 0:
+                                return '完成';
+                            case 1:
+                                return '未开始';
+                            case 2:
+                                return '正在下载';
+                            case 3:
+                                return '下载出错';
+                        }
+                    }
+                }
+                , {field: 'path', title: '文件路径', width: 210}
+                , {field: 'file_exists', title: '文件当前可访问', width: 180}
+                , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 70}
+            ]]
+            , page: true
+            , parseData: function (res) {
+                return {
+                    "code": res.code,
+                    "msg": res.msg,
+                    "count": res.res.count,
+                    "data": res.res.list
+                };
+            }
+        });
+
+        table.on('tool(table)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('确定删除' + data.long_title + '?', function (index) {
+                    $.post('/god/episode/remove', {id: data._id}, function (res) {
+                        res = JSON.parse(res);
+                        if (res.code === -1) {
+                            alert(res.msg);
+                        } else {
+                            obj.del();
+                        }
+                        layer.close(index);
+                    })
+                });
+            }
+        });
+    });
+</script>

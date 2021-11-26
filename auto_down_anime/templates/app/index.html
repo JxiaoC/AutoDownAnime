@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 禁止浏览器发送来路, 否则B站的封面图无法显示 -->
+    <meta name="referrer" content="never">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>自动番剧下载管理后台 - layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+
+    <link rel="stylesheet" type="text/css" href="http://www.layuicdn.com/layui/css/layui.css?v=201801090202"/>
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">自动番剧下载管理后台</div>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                <li class="layui-nav-item layui-nav-itemed js-content-list">
+                    <a class="" href="javascript:;">番剧管理</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:;" data-url="/static/god/anime.html?type=lives">番剧列表</a></dd>
+                        <dd><a href="javascript:;" data-url="/static/god/episode.html?type=lives">分集列表</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item layui-nav-itemed js-content-list">
+                    <a class="" href="javascript:;">系统管理</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:;" data-url="/static/god/setting.html?type=lives">基本设置</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div id="body" style="padding: 15px;">
+        </div>
+    </div>
+
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+        © layui.com - 底部固定区域
+    </div>
+</div>
+<script src="//apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js" charset="utf-8"></script>
+<script src="http://www.layuicdn.com/layui/layui.js?v=201801090202"></script>
+<script>
+    function GetQueryString(name, replace) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var _ = replace ? decodeURIComponent(window.location.search).replace(/</g, '&').replace(/>/g, '&') : window.location.search;
+        var r = _.substr(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+    }
+
+    layui.use(['element', 'form'], function () {
+        var element = layui.element;
+        form = layui.form;
+    });
+</script>
+<script>
+    let order_status = {0: '待支付', 1: '已取消', 2: '待发货', 3: '已发货', 4: '', 5: '退款中', 6: '已退款', 7: '已支付,校验中'};
+    $('.js-content-list a').each(function () {
+        $(this).unbind().click(function () {
+            var url = $(this).data('url');
+            loadUrl(url + '&t=' + getRangeNum());
+        });
+    });
+
+    function getRangeNum() {
+        return Math.random();
+    }
+
+    function loadUrl(url) {
+        history.pushState(null, null, '/god?url=' + url.replace(/\?/g, '<').replace(/&/g, '>'));
+        $('#body').load(url);
+    }
+
+    if (GetQueryString('url')) {
+        loadUrl(GetQueryString('url').replace(/</g, '?').replace(/>/g, '&'));
+    }
+
+    function formatDate(now) {
+        if(!now) return 'N/A';
+        now = new Date(now * 1000);
+        var year = now.getFullYear();
+        var month = now.getMonth() + 1;
+        var date = now.getDate();
+        var hour = now.getHours();
+        var minute = now.getMinutes();
+        var second = now.getSeconds();
+        return year + "-" + month + "-" + date + " " + hour + ":" + minute + ":" + second;
+    }
+</script>
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cspan id='cnzz_stat_icon_30088308'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "w.cnzz.com/c.php%3Fid%3D30088308' type='text/javascript'%3E%3C/script%3E"));</script>
+</body>
+</html>

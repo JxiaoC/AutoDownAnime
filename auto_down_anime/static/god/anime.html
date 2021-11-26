@@ -1,0 +1,117 @@
+<style>
+    .layui-table-view tr td > div {
+        height: 150px;
+        line-height: 150px;
+    }
+
+    .layui-table img {
+        max-width: 100%;
+    }
+</style>
+
+<div class="layui-form-item">
+    <div class="layui-inline">
+        <div class="layui-input-inline" style="width: 500px">
+            <input type="tel" id="url" autocomplete="off" class="layui-input"
+                   placeholder="粘贴如下示例地址: https://www.bilibili.com/bangumi/media/md28235154/">
+        </div>
+        <button type="button" class="layui-btn" id="add">添加番剧</button>
+    </div>
+</div>
+
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-default layui-btn-xs" lay-event="ref">刷新分集</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<table class="layui-hide anime-table" id="table" lay-filter="table"></table>
+<script>
+    var tableIns;
+    layui.use('table', function () {
+        var table = layui.table;
+
+        tableIns = table.render({
+            elem: '#table'
+            , url: '/god/anime/list'
+            , title: '用户数据表'
+            , cols: [[
+                {field: '_id', title: 'ID', width: 240, fixed: 'left', unresize: true, sort: true}
+                , {field: 'title', title: '标题', width: 200}
+                , {
+                    field: 'cover', title: '封面', width: 150, templet: function (res) {
+                        return '<img src="' + res.cover + '"/>';
+                    }
+                }
+                , {
+                    field: 'desc', title: '描述', templet: function (res) {
+                        return res.desc.replace(/\\n/g, ' ');
+                    }
+                }
+                , {field: 'media_id', title: 'media_id', width: 120}
+                , {field: 'season_id', title: 'season_id', width: 120}
+                , {
+                    field: 'rating', title: '评分', width: 150, templet: function (res) {
+                        return res.rating_score + '(' + res.rating_count + '人评分)';
+                    }
+                }
+                , {
+                    field: 'atime', title: '添加时间', width: 210, templet: function (res) {
+                        return formatDate(res.atime);
+                    }
+                }
+                , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 140}
+            ]]
+            , page: true
+            , parseData: function (res) {
+                return {
+                    "code": res.code,
+                    "msg": res.msg,
+                    "count": res.res.count,
+                    "data": res.res.list
+                };
+            }
+        });
+
+        table.on('tool(table)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('确定删除' + data.title + '?', function (index) {
+                    $.post('/god/anime/remove', {id: data._id}, function (res) {
+                        res = JSON.parse(res);
+                        if (res.code === -1) {
+                            alert(res.msg);
+                        } else {
+                            obj.del();
+                        }
+                        layer.close(index);
+                    })
+                });
+            } else if (obj.event === 'ref') {
+                $.post('/god/anime/ref_episode', {id: data._id}, function (res) {
+                    res = JSON.parse(res);
+                    if (res.code === -1) {
+                        alert(res.msg);
+                    } else {
+                        alert('刷新完毕');
+                    }
+                })
+            }
+        });
+    });
+
+    $('#add').click(function () {
+        var url = $('#url').val();
+        if (!url) {
+            return;
+        }
+        $.post('/god/anime/add', {url: url}, function (res) {
+            res = JSON.parse(res);
+            if (res.code === -1) {
+                alert(res.msg);
+            } else {
+                tableIns.reload();
+            }
+        });
+    })
+</script>

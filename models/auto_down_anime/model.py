@@ -1,0 +1,81 @@
+# -*- coding:utf-8 -*-
+from bson import ObjectId
+from datetime import datetime
+
+from .base import *
+
+
+class AnimeList(Model):
+    """
+    番剧列表
+        'title': 标题
+        'atime': 添加时间
+        'desc': 描述
+        'cover': 封面
+        'media_id': media_id
+        'season_id': season_id
+        'rating_count': 评分人数
+        'rating_score':  评分
+    """
+    name = 'anime_list'
+
+    field = {
+        'title':                (str,           None),
+        'atime':                (datetime,      None),
+        'desc':                 (str,           None),
+        'cover':                (str,           None),
+        'media_id':             (int,           None),
+        'season_id':            (int,           None),
+        'rating_count':         (int,           None),
+        'rating_score':         (float,         None),
+    }
+
+
+class EpisodeList(Model):
+    """
+    内容列表
+        'title': 标题(一般是数字, 第几集)
+        'long_title': 长标题(这才叫标题)
+        'atime': 添加时间
+        'down_time': 下载开始时间
+        'complete_time': 下载完成时间
+        'season_id': season_id
+        'cover': 封面
+        'id': id
+        'aid': aid
+        'cid': cid
+        'down_status': 下载状态, 0=完成, 1=未下载, 2=正在下载, 3=下载失败
+        'file_path': 文件存放位置
+    """
+    name = 'episode_list'
+
+    field = {
+        'title':                (str,           None),
+        'long_title':           (str,           None),
+        'atime':                (datetime,      None),
+        'down_time':            (datetime,      None),
+        'complete_time':        (datetime,      None),
+        'season_id':            (int,           None),
+        'cover':                (str,           None),
+        'id':                   (int,           None),
+        'aid':                  (int,           None),
+        'cid':                  (int,           None),
+        'down_status':          (int,           None),
+        'file_path':            (int,           None),
+    }
+
+
+class LogList(Model):
+    """
+    日志列表
+        'atime': 添加时间
+        'data': 日志内容
+        'id': 所属id
+    """
+    name = 'log_list'
+
+    field = {
+        'atime':                (datetime,          None),
+        'data':                 (str,               None),
+        'id':                   (ObjectId,          None),
+    }

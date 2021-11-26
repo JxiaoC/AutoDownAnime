@@ -1,0 +1,4 @@
+pymongo~=3.11.3
+turbo~=0.4.9
+cPython~=0.0.6
+tornado~=6.1

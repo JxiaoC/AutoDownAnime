@@ -1,0 +1,10 @@
+node_modules
+bower_components
+.idea/
+*.pyc
+*.swp
+*.log
+*.iml
+*.tmp
+__test__
+.qiniu_pythonsdk_hostscache.json
