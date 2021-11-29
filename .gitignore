@@ -6,5 +6,10 @@ bower_components
 *.log
 *.iml
 *.tmp
+*.ini
+*.m4s
+*.mp4
+.DS_Store
+*.list
 __test__
 .qiniu_pythonsdk_hostscache.json

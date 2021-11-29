@@ -43,8 +43,10 @@ class EpisodeList(Model):
         'cover': 封面
         'id': id
         'aid': aid
+        'bid': bvid
         'cid': cid
         'down_status': 下载状态, 0=完成, 1=未下载, 2=正在下载, 3=下载失败
+        'down_text': 下载过程中用于显示的文本信息
         'file_path': 文件存放位置
     """
     name = 'episode_list'
@@ -59,8 +61,10 @@ class EpisodeList(Model):
         'cover':                (str,           None),
         'id':                   (int,           None),
         'aid':                  (int,           None),
+        'bid':                  (str,           None),
         'cid':                  (int,           None),
         'down_status':          (int,           None),
+        'down_text':            (str,           None),
         'file_path':            (int,           None),
     }
 
@@ -78,4 +82,22 @@ class LogList(Model):
         'atime':                (datetime,          None),
         'data':                 (str,               None),
         'id':                   (ObjectId,          None),
+    }
+
+
+class Setting(Model):
+    """
+    设置
+        'cookie': cookie
+        'ffmpeg_path': ffmpeg路径
+        'save_dir_path': 保存文件夹
+        'file_name': 保存名称
+    """
+    name = 'log_list'
+
+    field = {
+        'cookie':               (str,          None),
+        'ffmpeg_path':          (str,          None),
+        'save_dir_path':        (str,          None),
+        'file_name':            (str,          None),
     }

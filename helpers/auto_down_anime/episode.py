@@ -24,9 +24,9 @@ def list(page, limit):
     return res, tb_episode.find(Q).count()
 
 
-def remove(id):
-    id = ObjectId(id)
-    tb_episode.remove_by_id(id)
+def remove(ids):
+    ids = [ObjectId(f) for f in ids.split(',') if ObjectId.is_valid(f)]
+    tb_episode.remove({'_id': {'$in': ids}}, multi=True)
 
 
 def ref_episode_data(season_id):
@@ -50,6 +50,7 @@ def ref_episode_data(season_id):
                 'cover': episode['cover'],
                 'id': id,
                 'aid': episode['aid'],
+                'bid': tools.av2bv(episode['aid']),
                 'cid': episode['cid'],
                 'down_status': 1,
                 'file_path': '',

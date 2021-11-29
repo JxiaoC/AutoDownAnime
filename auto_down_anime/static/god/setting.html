@@ -1,0 +1,80 @@
+<style>
+    .tip{
+        color: #747474;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+</style>
+
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;"> <legend>基础设置</legend>
+        </fieldset>
+
+<div class="layui-form-item layui-form-text"> <label class="layui-form-label">Cookie</label>
+    <div class="layui-input-block">
+        <textarea placeholder="请输入cookie, 用于下载数据(非大会员则无法正常下载大会员专属番剧)" class="layui-textarea" id="cookie"></textarea>
+        <div class="tip">cookie起了关键作用, 他直接决定你能不能下载, 或者能不能下载高画质番剧(比如登录/未登录和大会员/非大会员)  </div>
+    </div>
+</div>
+
+<div class="layui-form-item"> <label class="layui-form-label">ffmpeg路径</label>
+    <div class="layui-input-block">
+        <input id="ffmpeg_path" type="text" autocomplete="off" placeholder="ffmpeg路径" class="layui-input">
+        <div class="tip">由于B站将视频和音频分离保存, 所以需要ffmpeg将视频和音频合并起来</div>
+    </div>
+</div>
+
+<div class="layui-form-item"> <label class="layui-form-label">保存路径</label>
+    <div class="layui-input-block">
+        <input id="save_dir_path" type="text" autocomplete="off" placeholder="保存文件夹路径" class="layui-input">
+        <div class="tip">文件下载完成过后, 将会移动到此文件夹, 会自动创建</div>
+    </div>
+</div>
+
+<div class="layui-form-item"> <label class="layui-form-label">文件名称</label>
+    <div class="layui-input-block">
+        <input id="file_name" type="text" autocomplete="off" placeholder="文件名称" class="layui-input" oninput="file_name_show();">
+        <div class="tip file_name_show">预览: N/A</div>
+        <div class="tip">保存的文件名称, 支持多级目录, 使用/开头, 支持使用别名, 具体别名请看下方</div>
+        <div class="tip">%anime_title%=番剧名称, %ep_num%=第几集, %ep_title%=分集名称, %media_id%, %season_id%, %ep_id%,
+            %avid%, %bvid%, %cid%</div>
+    </div>
+</div>
+
+<div class="layui-form-item">
+        <button type="submit" class="layui-btn" lay-submit="" lay-filter="save">保存</button>
+</div>
+
+<script>
+    layui.use(['form', 'layedit', 'laydate'], function() {
+        var form = layui.form
+            , layer = layui.layer
+        form.on('submit(save)', function (data) {
+            $.post('/god/setting/save', {
+                'cookie': document.querySelector('#cookie').value,
+                'ffmpeg_path': document.querySelector('#ffmpeg_path').value,
+                'save_dir_path': document.querySelector('#save_dir_path').value,
+                'file_name': document.querySelector('#file_name').value
+            }, function(res){
+                layer.alert('ok');
+            })
+        });
+    });
+
+    $.get('/god/setting/get', function(res){
+        res = JSON.parse(res);
+        document.querySelector('#cookie').value = res.res.cookie;
+        document.querySelector('#ffmpeg_path').value = res.res.ffmpeg_path;
+        document.querySelector('#save_dir_path').value = res.res.save_dir_path;
+        document.querySelector('#file_name').value = res.res.file_name;
+        file_name_show();
+    })
+
+    function file_name_show(){
+        $.post('/god/setting/get_file_name', {
+                'file_name': document.querySelector('#file_name').value
+            }, function(res){
+                res = JSON.parse(res);
+                document.querySelector('.file_name_show').innerHTML = '预览: ' + res.res;
+            })
+    }
+</script>

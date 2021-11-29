@@ -2,7 +2,8 @@
 import qiniu
 import turbo.log
 from bson import ObjectId
-from helpers.auto_down_anime import anime, episode
+from lib import tools
+from helpers.auto_down_anime import anime, episode, setting
 from .base import BaseHandler
 
 logger = turbo.log.getLogger(__file__)
@@ -13,6 +14,7 @@ class HomeHandler(BaseHandler):
     def get(self):
         self.render(
             'index.html',
+            username=tools.get_bilibili_username(),
         )
 
 
@@ -64,6 +66,29 @@ class EpisodeHandler(BaseHandler):
         }
 
     def do_remove(self):
-        id = self.get_argument('id', '')
-        self._data = episode.remove(id)
+        ids = self.get_argument('ids', '')
+        self._data = episode.remove(ids)
+
+
+class SettingHandler(BaseHandler):
+
+    def GET(self, type):
+        self.route(type)
+
+    def POST(self, type):
+        self.GET(type)
+
+    def do_get(self):
+        self._data = setting.get()
+
+    def do_get_file_name(self):
+        file_name = self.get_argument('file_name', '')
+        self._data = setting.get_file_name(file_name)
+
+    def do_save(self):
+        cookie = self.get_argument('cookie', '')
+        ffmpeg_path = self.get_argument('ffmpeg_path', '')
+        save_dir_path = self.get_argument('save_dir_path', '')
+        file_name = self.get_argument('file_name', '')
+        self._data = setting.save(cookie, ffmpeg_path, save_dir_path, file_name)
 

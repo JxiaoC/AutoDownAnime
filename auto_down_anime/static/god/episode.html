@@ -9,6 +9,11 @@
     }
 </style>
 
+<script type="text/html" id="toolbar">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm" lay-event="del_all">批量删除</button>
+    </div>
+</script>
 
 <script type="text/html" id="barDemo">
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
@@ -23,12 +28,14 @@
         tableIns = table.render({
             elem: '#table'
             , url: '/god/episode/list'
+            , toolbar: '#toolbar'
             , title: '用户数据表'
             , cols: [[
-                {field: '_id', title: 'ID', width: 240, fixed: 'left', unresize: true, sort: true}
+                {type: 'checkbox'},
+                {field: '_id', title: 'ID', width: 240}
                 , {
                     field: 'title', title: '所属番剧', width: 200, templet: function (res) {
-                        if(!res.anime_info) return 'N/A';
+                        if (!res.anime_info) return 'N/A';
                         return res.anime_info.title;
                     }
                 }
@@ -54,7 +61,7 @@
                 }
                 , {
                     field: 'down_status', title: '当前状态', width: 120, templet: function (res) {
-                        switch (res.down_status){
+                        switch (res.down_status) {
                             case 0:
                                 return '完成';
                             case 1:
@@ -81,11 +88,36 @@
             }
         });
 
+        //头工具栏事件
+        table.on('toolbar(table)', function (obj) {
+            var checkStatus = table.checkStatus(obj.config.id);
+            switch (obj.event) {
+                case 'del_all':
+                    var data = checkStatus.data;
+                    layer.confirm('确定删除' + data.length + '条数据?', function (index) {
+                        ids = []
+                        for(var f of data){
+                            ids.push(f['_id']);
+                        }
+                        ids = ids.join(',');
+                        $.post('/god/episode/remove', {ids: ids}, function (res) {
+                            res = JSON.parse(res);
+                            if (res.code === -1) {
+                                alert(res.msg);
+                            } else {
+                                tableIns.reload();
+                            }
+                            layer.close(index);
+                        })
+                    });
+            }
+        });
+
         table.on('tool(table)', function (obj) {
             var data = obj.data;
             if (obj.event === 'del') {
                 layer.confirm('确定删除' + data.long_title + '?', function (index) {
-                    $.post('/god/episode/remove', {id: data._id}, function (res) {
+                    $.post('/god/episode/remove', {ids: data._id}, function (res) {
                         res = JSON.parse(res);
                         if (res.code === -1) {
                             alert(res.msg);

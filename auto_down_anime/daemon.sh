@@ -6,7 +6,7 @@
 usage="Usage: $0 [start | stop]"
 
 PORT_RANGE="10000 10003"
-service="audo-down-anime-server"
+service="auto-down-anime-server"
 LOG_DIR="/tmp/androidesk/$service"
 pid="$LOG_DIR/service.pid"
 log="$LOG_DIR/service.log"

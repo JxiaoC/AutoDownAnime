@@ -6,7 +6,7 @@ import sys
 from tornado.util import ObjectDict
 
 # server name
-SERVER_NAME = 'audo-down-anime-server'
+SERVER_NAME = 'auto-down-anime-server'
 
 # server dir
 SERVER_DIR = os.path.dirname(os.path.abspath(__file__))

@@ -5,7 +5,7 @@
     <meta name="referrer" content="never">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>自动番剧下载管理后台 - layui</title>
+    <title>自动番剧下载管理后台</title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -13,12 +13,19 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="format-detection" content="telephone=no">
 
-    <link rel="stylesheet" type="text/css" href="http://www.layuicdn.com/layui/css/layui.css?v=201801090202"/>
+    <link rel="stylesheet" type="text/css" href="/static/css/layui.css?v=201801090202"/>
 </head>
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin">
     <div class="layui-header">
         <div class="layui-logo">自动番剧下载管理后台</div>
+        <ul class="layui-nav layui-layout-right">
+        <li class="layui-nav-item">
+        <a href="javascript:;">
+        {{ username }}
+        </a>
+        </li>
+        <span class="layui-nav-bar" style="left: 75px; top: 55px; width: 0px; opacity: 0;"></span></ul>
     </div>
 
     <div class="layui-side layui-bg-black">
@@ -47,14 +54,9 @@
         <div id="body" style="padding: 15px;">
         </div>
     </div>
-
-    <div class="layui-footer">
-        <!-- 底部固定区域 -->
-        © layui.com - 底部固定区域
-    </div>
 </div>
 <script src="//apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js" charset="utf-8"></script>
-<script src="http://www.layuicdn.com/layui/layui.js?v=201801090202"></script>
+<script src="/static/layui.js?v=201801090202"></script>
 <script>
     function GetQueryString(name, replace) {
         var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
