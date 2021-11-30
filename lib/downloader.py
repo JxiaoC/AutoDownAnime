@@ -228,9 +228,10 @@ class Downloader:
             time.sleep(2)
             raise ResponseMsg(-1, '下载失败')
         files.append(filepath)
-
+        self.down_text = '正在合并音视频文件'
         print('正在合并...')
         out_path = tools.ffmpeg_merge_audio_video(files, self.temp_dir_path)
+        self.down_text = '正在移动文件'
         print('正在移动...')
         shutil.move(out_path, self.file_path)
         self.complete = True
