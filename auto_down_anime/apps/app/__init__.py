@@ -9,7 +9,7 @@ register.register_group_urls('', [
 
 register.register_group_urls('/god', [
     ('', god.HomeHandler),
-    ('/anime/(add|list|remove|ref_episode)', god.AnimeHandler),
-    ('/episode/(list|remove)', god.EpisodeHandler),
+    ('/anime/(add|list|remove|ref_episode|end)', god.AnimeHandler),
+    ('/episode/(list|remove|reset)', god.EpisodeHandler),
     ('/setting/(get|save|get_file_name)', god.SettingHandler),
 ])

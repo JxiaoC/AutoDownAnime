@@ -12,10 +12,12 @@
 <script type="text/html" id="toolbar">
     <div class="layui-btn-container">
         <button class="layui-btn layui-btn-sm" lay-event="del_all">批量删除</button>
+        <button class="layui-btn layui-btn-sm" lay-event="reset_all">批量重置</button>
     </div>
 </script>
 
 <script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-default layui-btn-xs" lay-event="reset">重新下载</a>
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
 </script>
 
@@ -67,15 +69,22 @@
                             case 1:
                                 return '未开始';
                             case 2:
-                                return '正在下载';
+                                return res.down_text;
                             case 3:
                                 return '下载出错';
                         }
                     }
                 }
-                , {field: 'path', title: '文件路径', width: 210}
-                , {field: 'file_exists', title: '文件当前可访问', width: 180}
-                , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 70}
+                , {field: 'file_path', title: '文件路径', width: 210}
+                , {
+                    field: 'file_size', title: '文件大小', width: 120, templet: function (res) {
+                        if (res.file_size) {
+                            return +(res.file_size / 1024 / 1024 / 1024).toFixed(2) + 'GB';
+                        } else return 'N/A';
+                    }
+                }
+                , {field: 'file_exists', title: '文件存在', width: 110}
+                , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 160}
             ]]
             , page: true
             , parseData: function (res) {
@@ -91,12 +100,12 @@
         //头工具栏事件
         table.on('toolbar(table)', function (obj) {
             var checkStatus = table.checkStatus(obj.config.id);
+            var data = checkStatus.data;
             switch (obj.event) {
                 case 'del_all':
-                    var data = checkStatus.data;
                     layer.confirm('确定删除' + data.length + '条数据?', function (index) {
                         ids = []
-                        for(var f of data){
+                        for (var f of data) {
                             ids.push(f['_id']);
                         }
                         ids = ids.join(',');
@@ -110,6 +119,25 @@
                             layer.close(index);
                         })
                     });
+                    break;
+                case 'reset_all':
+                    layer.confirm('确定重新下载' + data.length + '条数据?', function (index) {
+                        ids = []
+                        for (var f of data) {
+                            ids.push(f['_id']);
+                        }
+                        ids = ids.join(',');
+                        $.post('/god/episode/reset', {ids: ids}, function (res) {
+                            res = JSON.parse(res);
+                            if (res.code === -1) {
+                                alert(res.msg);
+                            } else {
+                                tableIns.reload();
+                            }
+                            layer.close(index);
+                        })
+                    });
+                    break;
             }
         });
 
@@ -123,6 +151,19 @@
                             alert(res.msg);
                         } else {
                             obj.del();
+                        }
+                        layer.close(index);
+                    })
+                });
+            }
+            else if (obj.event === 'reset') {
+                layer.confirm('确定重新下载' + data.long_title + '?', function (index) {
+                    $.post('/god/episode/reset', {ids: data._id}, function (res) {
+                        res = JSON.parse(res);
+                        if (res.code === -1) {
+                            alert(res.msg);
+                        } else {
+                            tableIns.reload();
                         }
                         layer.close(index);
                     })

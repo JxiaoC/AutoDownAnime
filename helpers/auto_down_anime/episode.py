@@ -29,6 +29,18 @@ def remove(ids):
     tb_episode.remove({'_id': {'$in': ids}}, multi=True)
 
 
+def reset(ids):
+    ids = [ObjectId(f) for f in ids.split(',') if ObjectId.is_valid(f)]
+    tb_episode.update({'_id': {'$in': ids}}, {'$set': {
+        'down_time': None,
+        'complete_time': None,
+        'down_status': 1,
+        'down_text': '',
+        'file_path': '',
+        'file_size': 0
+    }}, multi=True)
+
+
 def ref_episode_data(season_id):
     try:
         data = json.loads(cp.get_html_for_requests('https://api.bilibili.com/pgc/web/season/section?season_id=%s' % season_id, headers=tools.gen_http_header()))

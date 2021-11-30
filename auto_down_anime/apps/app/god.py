@@ -47,6 +47,10 @@ class AnimeHandler(BaseHandler):
         id = self.get_argument('id', '')
         self._data = anime.ref_episode(id)
 
+    def do_end(self):
+        id = self.get_argument('id', '')
+        self._data = anime.switch_end(id)
+
 
 class EpisodeHandler(BaseHandler):
 
@@ -68,6 +72,10 @@ class EpisodeHandler(BaseHandler):
     def do_remove(self):
         ids = self.get_argument('ids', '')
         self._data = episode.remove(ids)
+
+    def do_reset(self):
+        ids = self.get_argument('ids', '')
+        self._data = episode.reset(ids)
 
 
 class SettingHandler(BaseHandler):

@@ -1,3 +1,4 @@
+import datetime
 import hashlib
 import json
 import os
@@ -18,9 +19,14 @@ tb_episode = model.EpisodeList()
 class Downloader:
     def __init__(self, ep_id):
         self.complete = False
-        self.dir_path = os.getcwd() + '/temp'
-        if not os.path.exists(self.dir_path):
-            os.makedirs(self.dir_path)
+        self.fail = False
+        self.exit = False
+        self.temp_dir_path = os.getcwd() + '/temp'
+        self.file_path = tools.get_file_path(ep_id=ep_id)
+        if not os.path.exists(os.path.split(self.file_path)[0]):
+            os.makedirs(os.path.split(self.file_path)[0])
+        if not os.path.exists(self.temp_dir_path):
+            os.makedirs(self.temp_dir_path)
         if not ObjectId.is_valid(ep_id):
             raise ResponseMsg(-1, '错误的ObjectId')
         self.ep_id = ObjectId(ep_id)
@@ -32,7 +38,7 @@ class Downloader:
         if not ep_info:
             raise ResponseMsg(-1, '不存在的分集数据')
         episode_id = ep_info.get('id', '')
-        url = 'https://api.bilibili.com/pgc/player/web/playurl?avid=%s&bvid=%s&cid=%s&qn=120&fnver=0&fnval=80&fourk=1&ep_id=%s&session=%s' % (
+        url = 'https://api.bilibili.com/pgc/player/web/playurl?avid=%s&bvid=%s&cid=%s&qn=16&fnver=0&fnval=80&fourk=1&ep_id=%s&session=%s' % (
             ep_info.get('aid', ''),
             ep_info.get('bid', ''),
             ep_info.get('cid', ''),
@@ -63,20 +69,31 @@ class Downloader:
         return urls
 
     def start(self):
+        tb_episode.update({'_id': self.ep_id}, {'$set': {'down_text': self.down_text, 'down_status': 2}})
         threading.Thread(target=self.thread_start).start()
         threading.Thread(target=self.thread_print).start()
 
     def thread_print(self):
         while not self.complete:
-            tb_episode.update({'_id': self.ep_id}, {'$set': {'down_text': self.down_text}})
+            tb_episode.update({'_id': self.ep_id}, {'$set': {'down_text': self.down_text, 'down_status': 2}})
             time.sleep(1)
+        if self.fail:
+            tb_episode.update({'_id': self.ep_id}, {'$set': {'down_status': 3}})
+        else:
+            tb_episode.update({'_id': self.ep_id}, {'$set': {
+                'down_status': 0,
+                'complete_time': datetime.datetime.now(),
+                'file_path': self.file_path,
+                'file_size': os.path.getsize(self.file_path),
+            }})
+        self.exit = True
 
     def thread_start(self):
         files = []
         urls = self.get_download_url()
         for i, video_urls in enumerate(urls['video']):
             # 下载每段视频, 目前好像每个视频都只有一段
-            filepath = '%s/video_%s.m4s' % (self.dir_path, i)
+            filepath = '%s/video_%s.m4s' % (self.temp_dir_path, i)
             for video_url in video_urls:
                 try:
                     start = time.time()
@@ -118,7 +135,7 @@ class Downloader:
         if len(files) > 1:
             raise ResponseMsg(-100, '需要合并!!!!!')
 
-        filepath = '%s/audio.m4s' % self.dir_path
+        filepath = '%s/audio.m4s' % self.temp_dir_path
         for audio_url in urls['audio']:
             # 下载音频
             try:
@@ -133,7 +150,7 @@ class Downloader:
                     if response.status_code == 200:  # 判断是否响应成功
                         print('Start download,[File size]:{size:.2f} MB'.format(
                             size=content_size / chunk_size / 1024))  # 开始下载，显示下载文件大小
-                    filepath = '%s/audio.m4s' % self.dir_path  # 设置图片name，注：必须加上扩展名
+                    filepath = '%s/audio.m4s' % self.temp_dir_path  # 设置图片name，注：必须加上扩展名
                     with open(filepath, 'wb') as file:  # 显示进度条
                         for data in response.iter_content(chunk_size=chunk_size):
                             file.write(data)
@@ -160,10 +177,14 @@ class Downloader:
             raise ResponseMsg(-1, '下载失败')
         files.append(filepath)
 
-        tools.ffmpeg_merge_audio_video(files, self.dir_path)
+        out_path = tools.ffmpeg_merge_audio_video(files, self.temp_dir_path)
+        os.rename(out_path, self.file_path)
         self.complete = True
 
 
 if __name__ == '__main__':
-    d = Downloader('61a4a1607233c05d1c597a47')
+    d = Downloader('61a4f0c65d0a9870a6c7bfe6')
     d.start()
+    while not d.exit:
+        print(1)
+        time.sleep(1)

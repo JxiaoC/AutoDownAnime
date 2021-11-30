@@ -39,13 +39,20 @@ def get_bilibili_username():
         return '登录失效'
 
 
-def get_file_name(file_name, ep_id):
-    ep_info = tb_episode.find_by_id(ep_id)
+def get_file_path(file_name='', ep_id=None):
+    if not ep_id:
+        ep_info = tb_episode.find_one()
+    else:
+        ep_info = tb_episode.find_by_id(ep_id)
+
     if not ep_info:
         raise ResponseMsg(-1, '不存在的分集数据')
     anime_info = tb_anime.find_one({'season_id': ep_info.get('season_id', 0)})
     if not anime_info:
         raise ResponseMsg(-1, '不存在的番剧数据')
+
+    if not file_name:
+        file_name = tb_setting.find_one().get('file_name', '')
     file_name = file_name.replace('%anime_title%', str(anime_info.get('title', '')))
     file_name = file_name.replace('%media_id%', str(anime_info.get('media_id', '')))
     file_name = file_name.replace('%ep_num%', str(ep_info.get('title', '')))
@@ -55,7 +62,9 @@ def get_file_name(file_name, ep_id):
     file_name = file_name.replace('%avid%', str(ep_info.get('aid', '')))
     file_name = file_name.replace('%bvid%', str(ep_info.get('bid', '')))
     file_name = file_name.replace('%cid%', str(ep_info.get('cid', '')))
-    return file_name + '.mp4'
+
+    dir_path = tb_setting.find_one().get('save_dir_path', '')
+    return ('%s/%s.mp4' % (dir_path, file_name)).replace('//', '/')
 
 
 def av2bv(av):
@@ -70,12 +79,14 @@ def get_ffmpeg_path():
 
 def ffmpeg_merge_audio_video(files, dir_path):
     cmd = get_ffmpeg_path()
+    out_path = '%s/out.mp4' % dir_path
     for f in files:
         cmd += " -i '%s'" % f
     cmd += ' -vcodec copy -acodec copy %s/out.mp4 -y' % dir_path
     os.popen(cmd).read()
-    if not os.path.exists('%s/out.mp4' % dir_path):
+    if not os.path.exists(out_path):
         raise ResponseMsg(-1, '合并失败')
+    return out_path
 
 
 if __name__ == '__main__':

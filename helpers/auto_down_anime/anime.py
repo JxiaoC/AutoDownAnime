@@ -48,6 +48,14 @@ def ref_episode(id):
     episode.ref_episode_data(anime_info.get('season_id', 0))
 
 
+def switch_end(id):
+    id = ObjectId(id)
+    anime_info = tb_anime_list.find_by_id(id)
+    tb_anime_list.update({'_id': anime_info['_id']}, {'$set': {
+        'end': not anime_info.get('end', False)
+    }})
+
+
 def __get_anime_data(media_id):
     if tb_anime_list.find_one({'media_id': media_id}):
         raise ResponseMsg(-1, '已经存在此番剧了!')
@@ -61,6 +69,7 @@ def __get_anime_data(media_id):
         'season_id': 0,
         'rating_count': 0,
         'rating_score': 0,
+        'end': False,
     }
     try:
         data = json.loads(cp.get_html_for_requests('https://api.bilibili.com/pgc/review/user?media_id=%s' % media_id, headers=tools.gen_http_header()))
@@ -91,6 +100,7 @@ def __get_anime_data(media_id):
         doc['rating_score'] = data['result']['media']['rating']['score']
     except Exception as e:
         raise ResponseMsg(-1, '获取评分时出错, %s' % e)
+    doc['end'] = data['result']['media']['new_ep']['index_show'].startswith('全') != -1
     tb_anime_list.insert(doc)
     episode.ref_episode_data(doc['season_id'])
 

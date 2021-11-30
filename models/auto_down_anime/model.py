@@ -16,6 +16,8 @@ class AnimeList(Model):
         'season_id': season_id
         'rating_count': 评分人数
         'rating_score':  评分
+        'rating_score':  评分
+        'end': 完结, 完结后的番剧将不再自动刷新
     """
     name = 'anime_list'
 
@@ -28,6 +30,7 @@ class AnimeList(Model):
         'season_id':            (int,           None),
         'rating_count':         (int,           None),
         'rating_score':         (float,         None),
+        'end':                  (bool,          None),
     }
 
 
@@ -48,6 +51,7 @@ class EpisodeList(Model):
         'down_status': 下载状态, 0=完成, 1=未下载, 2=正在下载, 3=下载失败
         'down_text': 下载过程中用于显示的文本信息
         'file_path': 文件存放位置
+        'file_size': 文件大小
     """
     name = 'episode_list'
 
@@ -65,7 +69,8 @@ class EpisodeList(Model):
         'cid':                  (int,           None),
         'down_status':          (int,           None),
         'down_text':            (str,           None),
-        'file_path':            (int,           None),
+        'file_path':            (str,           None),
+        'file_size':            (int,           None),
     }
 
 
