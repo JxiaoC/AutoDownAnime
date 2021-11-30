@@ -62,7 +62,7 @@
                     }
                 }
                 , {
-                    field: 'quality', title: '下载画质', width: 90, templet: function (res) {
+                    field: 'quality', title: '下载画质', width: 120, templet: function (res) {
                         switch (res.quality){
                             case 120:
                                 return '4K';
@@ -76,6 +76,8 @@
                                 return '480P';
                             case 16:
                                 return '320P';
+                            default:
+                                return 'N/A';
                         }
                     }
                 }

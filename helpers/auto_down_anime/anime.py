@@ -95,12 +95,13 @@ def __get_anime_data(media_id):
     try:
         doc['rating_count'] = data['result']['media']['rating']['count']
     except Exception as e:
-        raise ResponseMsg(-1, '获取评论人数时出错, %s' % e)
+        doc['rating_count'] = 0
 
     try:
         doc['rating_score'] = data['result']['media']['rating']['score']
     except Exception as e:
-        raise ResponseMsg(-1, '获取评分时出错, %s' % e)
+
+        doc['rating_count'] = 0
 
     try:
         _ = re.findall('第(.+?)季', doc['title'])
