@@ -109,7 +109,7 @@ def __get_anime_data(media_id):
     except Exception as e:
         raise ResponseMsg(-1, '获取第几季时出错, %s' % e)
 
-    doc['end'] = data['result']['media']['new_ep']['index_show'].startswith('全') != -1
+    doc['end'] = data['result']['media']['new_ep']['index_show'].startswith('全')
     tb_anime_list.insert(doc)
     episode.ref_episode_data(doc['season_id'])
 
