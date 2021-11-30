@@ -62,6 +62,24 @@
                     }
                 }
                 , {
+                    field: 'quality', title: '下载画质', width: 90, templet: function (res) {
+                        switch (res.quality){
+                            case 120:
+                                return '4K';
+                            case 112:
+                                return '1080P 高码率';
+                            case 80:
+                                return '1080P';
+                            case 64:
+                                return '720P';
+                            case 32:
+                                return '480P';
+                            case 16:
+                                return '320P';
+                        }
+                    }
+                }
+                , {
                     field: 'down_status', title: '当前状态', width: 120, templet: function (res) {
                         switch (res.down_status) {
                             case 0:

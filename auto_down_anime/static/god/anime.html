@@ -48,6 +48,11 @@
                     }
                 }
                 , {
+                    field: 'season', title: '季', width:90, templet: function (res) {
+                        return '第' + res.season + '季';
+                    }
+                }
+                , {
                     field: 'desc', title: '描述', templet: function (res) {
                         return res.desc.replace(/\\n/g, ' ');
                     }
