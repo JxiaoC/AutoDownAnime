@@ -12,6 +12,7 @@ class AnimeList(Model):
         'atime': 添加时间
         'desc': 描述
         'cover': 封面
+        'season': 季度
         'media_id': media_id
         'season_id': season_id
         'rating_count': 评分人数
@@ -25,6 +26,7 @@ class AnimeList(Model):
         'title':                (str,           None),
         'atime':                (datetime,      None),
         'desc':                 (str,           None),
+        'season':               (int,           None),
         'cover':                (str,           None),
         'media_id':             (int,           None),
         'season_id':            (int,           None),
@@ -43,6 +45,7 @@ class EpisodeList(Model):
         'down_time': 下载开始时间
         'complete_time': 下载完成时间
         'season_id': season_id
+        'quality': 画质
         'cover': 封面
         'id': id
         'aid': aid
@@ -62,6 +65,7 @@ class EpisodeList(Model):
         'down_time':            (datetime,      None),
         'complete_time':        (datetime,      None),
         'season_id':            (int,           None),
+        'quality':              (int,           None),
         'cover':                (str,           None),
         'id':                   (int,           None),
         'aid':                  (int,           None),

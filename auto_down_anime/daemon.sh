@@ -5,7 +5,7 @@
 
 usage="Usage: $0 [start | stop]"
 
-PORT_RANGE="10000 10003"
+PORT_RANGE="10000 10000"
 service="auto-down-anime-server"
 LOG_DIR="/tmp/androidesk/$service"
 pid="$LOG_DIR/service.pid"
@@ -57,9 +57,12 @@ case $1 in
                 echo no $service to stop
             fi
         done
+
         ;;
 
     (restart)
+        ps aux | grep auto_ref_ep.py | awk {'print $2'} | xargs sudo kill -9
+        ps aux | grep auto_download.py | awk {'print $2'} | xargs sudo kill -9
 
         for i in `seq $PORT_RANGE`
         do

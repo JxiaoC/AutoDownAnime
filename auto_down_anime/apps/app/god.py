@@ -1,9 +1,8 @@
 # -*- coding:utf-8 -*-
-import qiniu
 import turbo.log
-from bson import ObjectId
-from lib import tools
+
 from helpers.auto_down_anime import anime, episode, setting
+from lib import tools
 from .base import BaseHandler
 
 logger = turbo.log.getLogger(__file__)
@@ -98,5 +97,6 @@ class SettingHandler(BaseHandler):
         ffmpeg_path = self.get_argument('ffmpeg_path', '')
         save_dir_path = self.get_argument('save_dir_path', '')
         file_name = self.get_argument('file_name', '')
-        self._data = setting.save(cookie, ffmpeg_path, save_dir_path, file_name)
+        quality = self.get_argument('quality', '')
+        self._data = setting.save(cookie, ffmpeg_path, save_dir_path, file_name, quality)
 

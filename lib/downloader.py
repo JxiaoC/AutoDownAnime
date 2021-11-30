@@ -2,6 +2,8 @@ import datetime
 import hashlib
 import json
 import os
+import realpath
+import shutil
 import threading
 import time
 
@@ -38,30 +40,53 @@ class Downloader:
         if not ep_info:
             raise ResponseMsg(-1, '不存在的分集数据')
         episode_id = ep_info.get('id', '')
-        url = 'https://api.bilibili.com/pgc/player/web/playurl?avid=%s&bvid=%s&cid=%s&qn=16&fnver=0&fnval=80&fourk=1&ep_id=%s&session=%s' % (
-            ep_info.get('aid', ''),
-            ep_info.get('bid', ''),
-            ep_info.get('cid', ''),
-            episode_id,
-            hashlib.md5(str(time.time()).encode()).hexdigest(),
-        )
-        self.header = tools.gen_http_header()
-        self.header['referer'] = 'https://www.bilibili.com/bangumi/play/ep%s' % episode_id
-        data = cp.get_html_for_requests(url, headers=self.header)
-        data = json.loads(data)
-        quality = data['result']['quality']
+        max_retry = 3
+        now_retry = 1
+        data = {}
         urls = {
             'video': [],
             'audio': [],
         }
-        for f in data['result']['dash']['video']:
-            if f['id'] == quality:
-                url = []
-                url.append(f.get('base_url', f.get('baseUrl', '')))
-                for ff in f.get('backup_url', f.get('backupUrl', [])):
-                    url.append(ff)
-                urls['video'].append(url)
+        while now_retry <= max_retry:
+            now_retry += 1
+            url = 'https://api.bilibili.com/pgc/player/web/playurl?avid=%s&bvid=%s&cid=%s&qn=%s&fnver=0&fnval=80&fourk=1&ep_id=%s&session=%s' % (
+                ep_info.get('aid', ''),
+                ep_info.get('bid', ''),
+                ep_info.get('cid', ''),
+                tb_episode.find_one().get('quality', 120),
+                episode_id,
+                hashlib.md5(str(time.time()).encode()).hexdigest(),
+            )
+            self.header = tools.gen_http_header()
+            self.header['referer'] = 'https://www.bilibili.com/bangumi/play/ep%s' % episode_id
+            data = cp.get_html_for_requests(url, headers=self.header)
+            data = json.loads(data)
+            self.quality = data['result']['quality']
+            for f in data['result']['dash']['video']:
+                if f['id'] == self.quality:
+                    url = []
+                    url.append(f.get('base_url', f.get('baseUrl', '')))
+                    for ff in f.get('backup_url', f.get('backupUrl', [])):
+                        url.append(ff)
+                    urls['video'].append(url)
+                    break
+            if len(urls['video']) > 0:
                 break
+            print('没有获取到指定清晰度的数据, 等待10秒重新尝试')
+            time.sleep(10)
+
+        if len(urls['video']) == 0:
+            print('没有找到匹配的清晰度资源, 获取低级别画质')
+            self.quality = data['result']['dash']['video'][0]['id']
+            for f in data['result']['dash']['video']:
+                if f['id'] == self.quality:
+                    url = []
+                    url.append(f.get('base_url', f.get('baseUrl', '')))
+                    for ff in f.get('backup_url', f.get('backupUrl', [])):
+                        url.append(ff)
+                    urls['video'].append(url)
+                    break
+
         _ = data['result']['dash']['audio'][0]
         urls['audio'].append(_.get('base_url', _.get('baseUrl', '')))
         for f in _.get('backup_url', _.get('backupUrl', '')):
@@ -74,7 +99,18 @@ class Downloader:
         threading.Thread(target=self.thread_print).start()
 
     def thread_print(self):
+        sleep_time = 0
+        last_down_text = ''
         while not self.complete:
+            if self.down_text and self.down_text.startswith('下载') and self.down_text == last_down_text:
+                sleep_time += 1
+            else:
+                last_down_text = self.down_text
+                sleep_time = 0
+            if sleep_time > 300:
+                self.fail = True
+                self.down_text = '下载超时'
+                self.complete = True
             tb_episode.update({'_id': self.ep_id}, {'$set': {'down_text': self.down_text, 'down_status': 2}})
             time.sleep(1)
         if self.fail:
@@ -84,6 +120,7 @@ class Downloader:
                 'down_status': 0,
                 'complete_time': datetime.datetime.now(),
                 'file_path': self.file_path,
+                'quality': int(self.quality),
                 'file_size': os.path.getsize(self.file_path),
             }})
         self.exit = True
@@ -109,12 +146,14 @@ class Downloader:
                                 size=content_size / chunk_size / 1024))  # 开始下载，显示下载文件大小
                         with open(filepath, 'wb') as file:  # 显示进度条
                             for data in response.iter_content(chunk_size=chunk_size):
+                                if self.complete:
+                                    return
                                 file.write(data)
                                 size += len(data)
-                                self.down_text = '(%s/%s) %.2f%%' % (i+1, len(urls['video']), float(size / content_size * 100))
+                                self.down_text = '下载视频 > %.2f%%' % float(size / content_size * 100)
                                 print('\r' + self.down_text, end=' ')
                         end = time.time()  # 下载结束时间
-                        self.down_text = '(%s/%s) 下载完成' % (i+1, len(urls['video']))
+                        self.down_text = '视频下载完成'
                         print('Download completed!,times: %.2f秒' % (end - start))  # 输出下载用时时间
                         down_file_size = os.path.getsize(filepath)
                         if down_file_size == content_size:
@@ -153,12 +192,14 @@ class Downloader:
                     filepath = '%s/audio.m4s' % self.temp_dir_path  # 设置图片name，注：必须加上扩展名
                     with open(filepath, 'wb') as file:  # 显示进度条
                         for data in response.iter_content(chunk_size=chunk_size):
+                            if self.complete:
+                                return
                             file.write(data)
                             size += len(data)
-                            self.down_text = '%.2f%%' % (float(size / content_size * 100))
+                            self.down_text = '下载音频 > %.2f%%' % float(size / content_size * 100)
                             print('\r' + self.down_text, end=' ')
                     end = time.time()  # 下载结束时间
-                    self.down_text = '下载完成'
+                    self.down_text = '音频下载完成'
                     print('Download completed!,times: %.2f秒' % (end - start))  # 输出下载用时时间
                     down_file_size = os.path.getsize(filepath)
                     if down_file_size == content_size:
@@ -177,14 +218,15 @@ class Downloader:
             raise ResponseMsg(-1, '下载失败')
         files.append(filepath)
 
+        print('正在合并...')
         out_path = tools.ffmpeg_merge_audio_video(files, self.temp_dir_path)
-        os.rename(out_path, self.file_path)
+        print('正在移动...')
+        shutil.move(out_path, self.file_path)
         self.complete = True
 
 
 if __name__ == '__main__':
-    d = Downloader('61a4f0c65d0a9870a6c7bfe6')
+    d = Downloader('61a5a826ad8b1c4ce65359ac')
     d.start()
     while not d.exit:
-        print(1)
         time.sleep(1)

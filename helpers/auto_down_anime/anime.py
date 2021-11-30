@@ -65,6 +65,7 @@ def __get_anime_data(media_id):
         'atime': datetime.datetime.now(),
         'desc': cp.get_string(data, '"evaluate":"', '"'),
         'cover': '',
+        'season': 1,
         'media_id': media_id,
         'season_id': 0,
         'rating_count': 0,
@@ -100,11 +101,18 @@ def __get_anime_data(media_id):
         doc['rating_score'] = data['result']['media']['rating']['score']
     except Exception as e:
         raise ResponseMsg(-1, '获取评分时出错, %s' % e)
+
+    try:
+        _ = re.findall('第(.+?)季', doc['title'])
+        if len(_) > 0:
+            doc['season'] = tools.chinese2digits(_[0])
+    except Exception as e:
+        raise ResponseMsg(-1, '获取第几季时出错, %s' % e)
+
     doc['end'] = data['result']['media']['new_ep']['index_show'].startswith('全') != -1
     tb_anime_list.insert(doc)
     episode.ref_episode_data(doc['season_id'])
 
 
 if __name__ == '__main__':
-    add('https://www.bilibili.com/bangumi/media/md28235154/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.2')
-    add('28235154')
+    add('https://www.bilibili.com/bangumi/media/md28235160/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.2')
