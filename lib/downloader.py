@@ -16,6 +16,7 @@ from cPython import cPython as cp
 from lib import tools
 
 tb_episode = model.EpisodeList()
+tb_setting = model.Setting()
 
 
 class Downloader:
@@ -36,62 +37,70 @@ class Downloader:
         pass
 
     def get_download_url(self):
-        ep_info = tb_episode.find_by_id(self.ep_id)
-        if not ep_info:
-            raise ResponseMsg(-1, '不存在的分集数据')
-        episode_id = ep_info.get('id', '')
-        max_retry = 3
-        now_retry = 1
         data = {}
-        urls = {
-            'video': [],
-            'audio': [],
-        }
-        while now_retry <= max_retry:
-            now_retry += 1
-            url = 'https://api.bilibili.com/pgc/player/web/playurl?avid=%s&bvid=%s&cid=%s&qn=%s&fnver=0&fnval=80&fourk=1&ep_id=%s&session=%s' % (
-                ep_info.get('aid', ''),
-                ep_info.get('bid', ''),
-                ep_info.get('cid', ''),
-                tb_episode.find_one().get('quality', 120),
-                episode_id,
-                hashlib.md5(str(time.time()).encode()).hexdigest(),
-            )
-            self.header = tools.gen_http_header()
-            self.header['referer'] = 'https://www.bilibili.com/bangumi/play/ep%s' % episode_id
-            data = cp.get_html_for_requests(url, headers=self.header)
-            data = json.loads(data)
-            self.quality = data['result']['quality']
-            for f in data['result']['dash']['video']:
-                if f['id'] == self.quality:
-                    url = []
-                    url.append(f.get('base_url', f.get('baseUrl', '')))
-                    for ff in f.get('backup_url', f.get('backupUrl', [])):
-                        url.append(ff)
-                    urls['video'].append(url)
+        try:
+            ep_info = tb_episode.find_by_id(self.ep_id)
+            if not ep_info:
+                raise ResponseMsg(-1, '不存在的分集数据')
+            episode_id = ep_info.get('id', '')
+            max_retry = 3
+            now_retry = 1
+            urls = {
+                'video': [],
+                'audio': [],
+            }
+            while now_retry <= max_retry:
+                now_retry += 1
+                url = 'https://api.bilibili.com/pgc/player/web/playurl?avid=%s&bvid=%s&cid=%s&qn=%s&fnver=0&fnval=80&fourk=1&ep_id=%s&session=%s' % (
+                    ep_info.get('aid', ''),
+                    ep_info.get('bid', ''),
+                    ep_info.get('cid', ''),
+                    tb_setting.find_one().get('quality', 120),
+                    episode_id,
+                    hashlib.md5(str(time.time()).encode()).hexdigest(),
+                )
+                print(url)
+                self.header = tools.gen_http_header()
+                self.header['referer'] = 'https://www.bilibili.com/bangumi/play/ep%s' % episode_id
+                data = cp.get_html_for_requests(url, headers=self.header)
+                data = json.loads(data)
+                self.quality = data['result']['quality']
+                for f in data['result']['dash']['video']:
+                    if f['id'] == self.quality:
+                        url = []
+                        url.append(f.get('base_url', f.get('baseUrl', '')))
+                        for ff in f.get('backup_url', f.get('backupUrl', [])):
+                            url.append(ff)
+                        urls['video'].append(url)
+                        break
+                if len(urls['video']) > 0:
                     break
-            if len(urls['video']) > 0:
-                break
-            print('没有获取到指定清晰度的数据, 等待10秒重新尝试')
-            time.sleep(10)
+                print('没有获取到指定清晰度的数据, 等待10秒重新尝试')
+                time.sleep(10)
 
-        if len(urls['video']) == 0:
-            print('没有找到匹配的清晰度资源, 获取低级别画质')
-            self.quality = data['result']['dash']['video'][0]['id']
-            for f in data['result']['dash']['video']:
-                if f['id'] == self.quality:
-                    url = []
-                    url.append(f.get('base_url', f.get('baseUrl', '')))
-                    for ff in f.get('backup_url', f.get('backupUrl', [])):
-                        url.append(ff)
-                    urls['video'].append(url)
-                    break
+            if len(urls['video']) == 0:
+                print('没有找到匹配的清晰度资源, 获取低级别画质')
+                self.quality = data['result']['dash']['video'][0]['id']
+                for f in data['result']['dash']['video']:
+                    if f['id'] == self.quality:
+                        url = []
+                        url.append(f.get('base_url', f.get('baseUrl', '')))
+                        for ff in f.get('backup_url', f.get('backupUrl', [])):
+                            url.append(ff)
+                        urls['video'].append(url)
+                        break
 
-        _ = data['result']['dash']['audio'][0]
-        urls['audio'].append(_.get('base_url', _.get('baseUrl', '')))
-        for f in _.get('backup_url', _.get('backupUrl', '')):
-            urls['audio'].append(f)
-        return urls
+            _ = data['result']['dash']['audio'][0]
+            urls['audio'].append(_.get('base_url', _.get('baseUrl', '')))
+            for f in _.get('backup_url', _.get('backupUrl', '')):
+                urls['audio'].append(f)
+            return urls
+        except Exception as e:
+            print(data)
+            print('下载地址解析失败, %s' % e)
+            self.fail = True
+            self.complete = True
+            return None
 
     def start(self):
         tb_episode.update({'_id': self.ep_id}, {'$set': {'down_text': self.down_text, 'down_status': 2}})
@@ -128,6 +137,8 @@ class Downloader:
     def thread_start(self):
         files = []
         urls = self.get_download_url()
+        if not urls:
+            return
         for i, video_urls in enumerate(urls['video']):
             # 下载每段视频, 目前好像每个视频都只有一段
             filepath = '%s/video_%s.m4s' % (self.temp_dir_path, i)
@@ -226,7 +237,7 @@ class Downloader:
 
 
 if __name__ == '__main__':
-    d = Downloader('61a5a826ad8b1c4ce65359ac')
+    d = Downloader('61a5ce14cc08540d4f68f5cc')
     d.start()
     while not d.exit:
         time.sleep(1)

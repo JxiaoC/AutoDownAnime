@@ -26,13 +26,13 @@ define("port", default=8860, type=int)
 
 def guardian_auto_download():
     while True:
-        os.popen('python3 task/auto_download.py').read()
+        os.popen('python3 task/auto_download.py > Auto_download.log').read()
         time.sleep(60)
 
 
 def guardian_ref_ep():
     while True:
-        os.popen('python3 task/auto_ref_ep.py').read()
+        os.popen('python3 task/auto_ref_ep.py > Auto_ref_ep.log').read()
         time.sleep(60)
 
 

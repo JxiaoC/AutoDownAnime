@@ -57,7 +57,8 @@ case $1 in
                 echo no $service to stop
             fi
         done
-
+        ps aux | grep auto_ref_ep.py | awk {'print $2'} | xargs sudo kill -9
+        ps aux | grep auto_download.py | awk {'print $2'} | xargs sudo kill -9
         ;;
 
     (restart)
