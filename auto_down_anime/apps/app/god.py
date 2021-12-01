@@ -50,6 +50,16 @@ class AnimeHandler(BaseHandler):
         id = self.get_argument('id', '')
         self._data = anime.switch_end(id)
 
+    def do_down(self):
+        id = self.get_argument('id', '')
+        self._data = anime.switch_down(id)
+
+    def do_edit(self):
+        id = self.get_argument('id', '')
+        key = self.get_argument('key', '')
+        value = self.get_argument('value', '')
+        self._data = anime.edit(id, key, value)
+
 
 class EpisodeHandler(BaseHandler):
 
@@ -98,5 +108,6 @@ class SettingHandler(BaseHandler):
         save_dir_path = self.get_argument('save_dir_path', '')
         file_name = self.get_argument('file_name', '')
         quality = self.get_argument('quality', '')
-        self._data = setting.save(cookie, ffmpeg_path, save_dir_path, file_name, quality)
+        add_auto_down = self.get_argument('add_auto_down', 'true')
+        self._data = setting.save(cookie, ffmpeg_path, save_dir_path, file_name, quality, add_auto_down)
 

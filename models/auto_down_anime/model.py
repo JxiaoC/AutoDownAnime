@@ -19,6 +19,7 @@ class AnimeList(Model):
         'rating_score':  评分
         'rating_score':  评分
         'end': 完结, 完结后的番剧将不再自动刷新
+        'down': 是否允许下载
     """
     name = 'anime_list'
 
@@ -33,6 +34,7 @@ class AnimeList(Model):
         'rating_count':         (int,           None),
         'rating_score':         (float,         None),
         'end':                  (bool,          None),
+        'down':                 (bool,          None),
     }
 
 
@@ -101,6 +103,7 @@ class Setting(Model):
         'ffmpeg_path': ffmpeg路径
         'save_dir_path': 保存文件夹
         'file_name': 保存名称
+        'add_auto_down': 添加后自动开始下载
     """
     name = 'log_list'
 
@@ -109,4 +112,5 @@ class Setting(Model):
         'ffmpeg_path':          (str,          None),
         'save_dir_path':        (str,          None),
         'file_name':            (str,          None),
+        'add_auto_down':        (bool,         None),
     }

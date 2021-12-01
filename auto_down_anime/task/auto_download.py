@@ -9,6 +9,7 @@ from models.auto_down_anime import model
 from lib import downloader
 
 tb_episode = model.EpisodeList()
+tb_anime = model.AnimeList()
 
 
 def write_pid():
@@ -30,6 +31,9 @@ def read_pid():
 
 def start():
     for f in tb_episode.find({'down_status': 1}):
+        anime_info = tb_anime.find_one({'season_id': f.get('season_id', 0)})
+        if anime_info and not anime_info.get('down', False):
+            continue
         print('download %s > %s', (f['_id'], f.get('long_title', '')))
         d = downloader.Downloader(f['_id'])
         d.start()
@@ -39,10 +43,9 @@ def start():
 
 if __name__ == '__main__':
     pid = read_pid()
-    pid = int(pid)
     if pid:
         running_pid = psutil.pids()
-        if pid in running_pid:
+        if int(pid) in running_pid:
             exit(0)
     write_pid()
 

@@ -58,6 +58,16 @@
         </div>
     </div>
 
+    <div class="layui-form-item"> <label class="layui-form-label">自动下载</label>
+        <div class="layui-input-block">
+            <select id="add_auto_down">
+                <option value="true">是</option>
+                <option value="false">否</option>
+            </select>
+            <div class="tip">当新添加番剧过后, 自动为其开启下载, 否则需要手动启用, 一般在需要对标题, 第几季等信息进行二次编辑的情况下使用</div>
+        </div>
+    </div>
+
     <div class="layui-form-item">
             <button type="submit" class="layui-btn" lay-submit="" lay-filter="save">保存</button>
     </div>
@@ -73,7 +83,8 @@
                 'ffmpeg_path': document.querySelector('#ffmpeg_path').value,
                 'save_dir_path': document.querySelector('#save_dir_path').value,
                 'file_name': document.querySelector('#file_name').value,
-                'quality': document.querySelector('#quality').value
+                'quality': document.querySelector('#quality').value,
+                'add_auto_down': document.querySelector('#add_auto_down').value
             }, function(res){
                 layer.alert('ok');
             })
@@ -88,6 +99,7 @@
         document.querySelector('#save_dir_path').value = res.res.save_dir_path;
         document.querySelector('#file_name').value = res.res.file_name;
         document.querySelector('#quality').value = res.res.quality;
+        document.querySelector('#add_auto_down').value = res.res.add_auto_down;
         file_name_show();
         form.render();
     })

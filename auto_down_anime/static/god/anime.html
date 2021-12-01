@@ -1,5 +1,5 @@
 <style>
-    .layui-table-col-special > div{
+    .layui-table-col-special > div {
         line-height: inherit !important;
     }
 
@@ -23,9 +23,12 @@
     </div>
 </div>
 <script type="text/html" id="barDemo">
-    <a class="layui-btn layui-btn-default layui-btn-xs" lay-event="end" style="margin:50px 0 10px 0;">切换完结状态</a>
+    <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="down" style="margin:20px 0 10px 0;">切换下载状态</a>
     <br/>
-    <a class="layui-btn layui-btn-default layui-btn-xs" lay-event="ref">刷新分集</a>
+    <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="end" style="margin:0 0 10px 0;">切换完结状态</a>
+    <br/>
+    <a class="layui-btn layui-btn-default layui-btn-xs" lay-event="ref" style="margin:0 0 10px 0;">刷新分集</a>
+    <br/>
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
 </script>
 
@@ -41,14 +44,14 @@
             , title: '用户数据表'
             , cols: [[
                 {field: '_id', title: 'ID', width: 240, unresize: true, sort: true}
-                , {field: 'title', title: '标题', width: 200}
+                , {field: 'title', title: '标题', width: 200, edit: 'text'}
                 , {
                     field: 'cover', title: '封面', width: 150, templet: function (res) {
                         return '<img src="' + res.cover + '"/>';
                     }
                 }
                 , {
-                    field: 'season', title: '季', width:90, templet: function (res) {
+                    field: 'season', title: '季', width: 90, edit: 'text', templet: function (res) {
                         return '第' + res.season + '季';
                     }
                 }
@@ -57,7 +60,16 @@
                         return res.desc.replace(/\\n/g, ' ');
                     }
                 }
-                , {field: 'end', title: '完结', width: 80}
+                , {
+                    field: 'end', title: '完结', width: 80, templet: function (res) {
+                        return res.end ? '已完结' : '连载中';
+                    }
+                }
+                , {
+                    field: 'down', title: '自动下载', width: 110, templet: function (res) {
+                        return res.down ? '是' : '否';
+                    }
+                }
                 , {field: 'media_id', title: 'media_id', width: 120}
                 , {field: 'season_id', title: 'season_id', width: 120}
                 , {
@@ -115,7 +127,28 @@
                         tableIns.reload();
                     }
                 })
+            } else if (obj.event === 'down') {
+                $.post('/god/anime/down', {id: data._id}, function (res) {
+                    res = JSON.parse(res);
+                    if (res.code === -1) {
+                        alert(res.msg);
+                    } else {
+                        tableIns.reload();
+                    }
+                })
             }
+        });
+
+        table.on('edit(table)', function (obj) {
+            var value = obj.value //得到修改后的值
+                , data = obj.data //得到所在行所有键值
+                , field = obj.field; //得到字段
+            $.post('/god/anime/edit', {id: data._id, key: field, value: value}, function (res) {
+                res = JSON.parse(res);
+                if (res.code === -1) {
+                    alert(res.msg);
+                }
+            })
         });
     });
 

@@ -5,6 +5,7 @@ import json
 from bson import ObjectId
 
 from helpers.auto_down_anime import episode
+from helpers.auto_down_anime import setting
 from models.auto_down_anime import model
 from turbo.core.exceptions import ResponseMsg
 from cPython import cPython as cp
@@ -34,6 +35,18 @@ def add(url):
     __get_anime_data(media_id)
 
 
+def edit(id, key, value):
+    id = ObjectId(id)
+    anime_info = tb_anime_list.find_by_id(id)
+    if not anime_info:
+        raise ResponseMsg(-1, '不存在的番剧信息')
+    if key not in anime_info.keys():
+        raise ResponseMsg(-1, '不存在的key')
+    tb_anime_list.update({'_id': anime_info['_id']}, {'$set': {
+        key: value
+    }})
+
+
 def remove(id):
     id = ObjectId(id)
     anime_info = tb_anime_list.find_by_id(id)
@@ -56,6 +69,14 @@ def switch_end(id):
     }})
 
 
+def switch_down(id):
+    id = ObjectId(id)
+    anime_info = tb_anime_list.find_by_id(id)
+    tb_anime_list.update({'_id': anime_info['_id']}, {'$set': {
+        'down': not anime_info.get('down', False)
+    }})
+
+
 def __get_anime_data(media_id):
     if tb_anime_list.find_one({'media_id': media_id}):
         raise ResponseMsg(-1, '已经存在此番剧了!')
@@ -71,6 +92,7 @@ def __get_anime_data(media_id):
         'rating_count': 0,
         'rating_score': 0,
         'end': False,
+        'down': setting.get().get('add_auto_down', False),
     }
     try:
         data = json.loads(cp.get_html_for_requests('https://api.bilibili.com/pgc/review/user?media_id=%s' % media_id, headers=tools.gen_http_header()))
@@ -104,10 +126,13 @@ def __get_anime_data(media_id):
         doc['rating_count'] = 0
 
     try:
-        _ = re.findall('第(.+?)季', doc['title'])
-        if len(_) > 0:
-            doc['season'] = tools.chinese2digits(_[0])
-            doc['title'] = doc['title'].replace('第%s季' % _[0], '').strip()
+        _ = re.search('[\(\[]第(.+?)季[\)\]]', doc['title'])
+        if not _:
+            _ = re.search('第(.+?)季', doc['title'])
+
+        if _:
+            doc['season'] = tools.chinese2digits(_.group(1))
+            doc['title'] = doc['title'].replace(_.group(0), '').strip()
     except Exception as e:
         raise ResponseMsg(-1, '获取第几季时出错, %s' % e)
 

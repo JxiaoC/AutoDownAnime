@@ -20,6 +20,7 @@ def get():
             'save_dir_path': '',
             'quality': 120,
             'file_name': '%anime_title%/Season %season%/%ep_title% S%season%E%ep_num%',
+            'add_auto_down': True,
         }
         tb_setting.insert(_)
     return _
@@ -29,7 +30,7 @@ def get_file_name(file_name):
     return tools.get_file_path(file_name.strip())
 
 
-def save(cookie, ffmpeg_path, save_dir_path, file_name, quality):
+def save(cookie, ffmpeg_path, save_dir_path, file_name, quality, add_auto_down):
     if save_dir_path.endswith('/'):
         save_dir_path = save_dir_path[:-1]
     if file_name.startswith('/'):
@@ -40,4 +41,5 @@ def save(cookie, ffmpeg_path, save_dir_path, file_name, quality):
         'ffmpeg_path': ffmpeg_path.strip(),
         'save_dir_path': save_dir_path.strip(),
         'file_name': file_name.strip(),
+        'add_auto_down': add_auto_down.strip() == 'true',
     }})

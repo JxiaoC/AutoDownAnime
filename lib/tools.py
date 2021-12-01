@@ -5,10 +5,10 @@ import os
 from bson import ObjectId
 from cPython import cPython as cp
 from models.auto_down_anime import model
+from helpers.auto_down_anime import setting
 from turbo.core.exceptions import ResponseMsg
 
 DEBUG = os.path.exists(os.path.join(os.path.dirname(os.path.abspath(__file__)), '__test__'))
-tb_setting = model.Setting()
 tb_episode = model.EpisodeList()
 tb_anime = model.AnimeList()
 
@@ -31,9 +31,8 @@ def gen_http_header():
     header = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36',
     }
-    try:
-        header['cookie'] = tb_setting.find_one()['cookie']
-    except:
+    header['cookie'] = setting.get().get('cookie', '')
+    if not header['cookie']:
         raise ResponseMsg(-1, '第一次使用请先到系统设置中填写cookie等信息!')
     return header
 
@@ -64,7 +63,7 @@ def get_file_path(file_name='', ep_id=None):
         anime_info = {'_id': ObjectId('61a5ce13cc08540d4f68f5c5'), 'title': '国王排名', 'atime': datetime.datetime(2021, 11, 30, 15, 9, 6, 987000), 'desc': '国家的丰饶、麾下勇者的数量、\\n以及国王本人如何像勇者一般强大，\\n这些要素的综合排名，便是所谓的“国王排名”。\\n主人公波吉是国王排名第七名的伯斯王治下王国的第一王子。\\n但是波吉却生来又聋又哑，贫弱到挥不动剑。\\n不止家臣甚至连民众都轻蔑地说「他实在不是当国王的料」。\\n这样的波吉人生中第一位交到的朋友，卡克。\\n与卡克的邂逅，以及那些微小的勇气中诞生的，\\n波吉人生的巨变将要开始——', 'cover': 'http://i0.hdslb.com/bfs/bangumi/image/3d9ca89d2df4603a99b6a5f54bf6b0501ead39aa.png', 'season': 1, 'media_id': 28235154, 'season_id': 39462, 'rating_count': 115017, 'rating_score': 9.7, 'end': True}
 
     if not file_name:
-        file_name = tb_setting.find_one().get('file_name', '')
+        file_name = setting.get().get('file_name', '')
     file_name = file_name.replace('%anime_title%', str(anime_info.get('title', '')))
     file_name = file_name.replace('%media_id%', str(anime_info.get('media_id', '')))
     file_name = file_name.replace('%season%', str(anime_info.get('season', '')))
@@ -76,7 +75,7 @@ def get_file_path(file_name='', ep_id=None):
     file_name = file_name.replace('%bvid%', str(ep_info.get('bid', '')))
     file_name = file_name.replace('%cid%', str(ep_info.get('cid', '')))
 
-    dir_path = tb_setting.find_one().get('save_dir_path', '')
+    dir_path = setting.get().get('save_dir_path', '')
     return ('%s/%s.mp4' % (dir_path, file_name)).replace('//', '/')
 
 
@@ -87,7 +86,7 @@ def av2bv(av):
 
 
 def get_ffmpeg_path():
-    return tb_setting.find_one().get('ffmpeg_path', '')
+    return setting.get().get('ffmpeg_path', '')
 
 
 def ffmpeg_merge_audio_video(files, dir_path):

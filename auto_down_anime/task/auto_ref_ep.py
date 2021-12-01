@@ -38,10 +38,9 @@ def start():
 
 if __name__ == '__main__':
     pid = read_pid()
-    pid = int(pid)
     if pid:
         running_pid = psutil.pids()
-        if pid in running_pid:
+        if int(pid) in running_pid:
             exit(0)
     write_pid()
 
