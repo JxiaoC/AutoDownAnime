@@ -107,6 +107,7 @@ def __get_anime_data(media_id):
         _ = re.findall('第(.+?)季', doc['title'])
         if len(_) > 0:
             doc['season'] = tools.chinese2digits(_[0])
+            doc['title'] = doc['title'].replace('第%s季' % _[0], '').strip()
     except Exception as e:
         raise ResponseMsg(-1, '获取第几季时出错, %s' % e)
 
