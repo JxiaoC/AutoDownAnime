@@ -51,5 +51,8 @@ if __name__ == '__main__':
 
     print("auto download running...")
     while True:
-        start()
+        try:
+            start()
+        except:
+            pass
         time.sleep(60)
