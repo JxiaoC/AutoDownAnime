@@ -42,6 +42,12 @@
                     }
                 }
                 , {
+                    field: 'title', title: '季', width: 80, templet: function (res) {
+                        if (!res.anime_info) return 'N/A';
+                        return '第' + res.anime_info.season + '季';
+                    }
+                }
+                , {
                     field: 'title', title: '标题', width: 200, templet: function (res) {
                         return res.title + '.' + res.long_title;
                     }
