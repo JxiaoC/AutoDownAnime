@@ -18,6 +18,14 @@ common_used_numerals = {}
 for key in common_used_numerals_tmp:
     common_used_numerals[key] = common_used_numerals_tmp[key]
 
+table = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF'
+tr = {}
+for i in range(58):
+    tr[table[i]] = i
+s = [11, 10, 3, 8, 4, 6]
+xor = 177451812
+add = 8728348608
+
 
 def isint(a):
     try:
@@ -79,10 +87,20 @@ def get_file_path(file_name='', ep_id=None):
     return ('%s/%s.mp4' % (dir_path, file_name)).replace('//', '/')
 
 
-def av2bv(av):
-    data = cp.get_html_for_requests('https://api.bilibili.com/x/web-interface/view?aid=%s' % av)
-    data = json.loads(data)
-    return data['data']['bvid']
+def bv2av(x):
+    r = 0
+    for i in range(6):
+        r += tr[x[s[i]]] * 58 ** i
+    return (r - add) ^ xor
+
+
+def av2bv(x):
+    x = int(x)
+    x = (x ^ xor) + add
+    r = list('BV1  4 1 7  ')
+    for i in range(6):
+        r[s[i]] = table[x // 58 ** i % 58]
+    return ''.join(r)
 
 
 def get_ffmpeg_path():
@@ -124,4 +142,5 @@ def chinese2digits(uchars_chinese):
 
 
 if __name__ == '__main__':
-    get_bilibili_userinfo()
+    # get_bilibili_userinfo()
+    pass
