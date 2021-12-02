@@ -34,6 +34,7 @@ class Downloader:
             raise ResponseMsg(-1, '错误的ObjectId')
         self.ep_id = ObjectId(ep_id)
         self.down_text = ''
+        self.temp_file_paths = []
         pass
 
     def get_download_url(self):
@@ -181,6 +182,7 @@ class Downloader:
                 time.sleep(2)
                 raise ResponseMsg(-1, '下载失败')
             files.append(filepath)
+            self.temp_file_paths.append(filepath)
 
         if len(files) > 1:
             raise ResponseMsg(-100, '需要合并!!!!!')
@@ -213,6 +215,7 @@ class Downloader:
                     self.down_text = '音频下载完成'
                     print('Download completed!,times: %.2f秒' % (end - start))  # 输出下载用时时间
                     down_file_size = os.path.getsize(filepath)
+                    self.temp_file_paths.append(filepath)
                     if down_file_size == content_size:
                         break
                     else:
@@ -226,6 +229,7 @@ class Downloader:
         if not os.path.exists(filepath):
             self.down_text = '下载失败'
             time.sleep(2)
+            self.remove_temp_file()
             raise ResponseMsg(-1, '下载失败')
         files.append(filepath)
 
@@ -237,6 +241,7 @@ class Downloader:
             self.down_text = '合并失败, %s' % e
             self.fail = True
             self.complete = True
+            self.remove_temp_file()
             return
 
         try:
@@ -244,13 +249,23 @@ class Downloader:
             print('正在移动...')
             shutil.move(out_path, self.file_path)
         except Exception as e:
-            self.down_text = '合并失败, %s' % e
+            self.down_text = '移动失败, %s' % e
             self.fail = True
+
+        self.remove_temp_file()
         self.complete = True
+
+    def remove_temp_file(self):
+        for path in self.temp_file_paths:
+            try:
+                os.path.exists(path) and os.remove(path)
+            except Exception as e:
+                print('删除临时文件失败, %s' % e)
+                pass
 
 
 if __name__ == '__main__':
-    d = Downloader('61a5ce14cc08540d4f68f5cc')
+    d = Downloader('61a8260ce2e0e3192549b0a4')
     d.start()
     while not d.exit:
         time.sleep(1)
