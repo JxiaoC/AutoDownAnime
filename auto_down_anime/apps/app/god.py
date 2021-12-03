@@ -28,7 +28,9 @@ class AnimeHandler(BaseHandler):
     def do_list(self):
         page = int(self.get_argument('page', '1'))
         limit = int(self.get_argument('limit', '10'))
-        list, count = anime.list(page, limit)
+        search_key = self.get_argument('search_key', '')
+        search_value = self.get_argument('search_value', '')
+        list, count = anime.list(page, limit, search_key, search_value)
         self._data = {
             'list': list,
             'count': count,
@@ -72,7 +74,9 @@ class EpisodeHandler(BaseHandler):
     def do_list(self):
         page = int(self.get_argument('page', '1'))
         limit = int(self.get_argument('limit', '10'))
-        list, count = episode.list(page, limit)
+        search_key = self.get_argument('search_key', '')
+        search_value = self.get_argument('search_value', '')
+        list, count = episode.list(page, limit, search_key, search_value)
         self._data = {
             'list': list,
             'count': count,

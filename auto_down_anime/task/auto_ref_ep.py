@@ -44,7 +44,7 @@ if __name__ == '__main__':
             exit(0)
     write_pid()
 
-    print("auto download running...")
+    print("auto refresh episode info running...")
     while True:
         try:
             start()

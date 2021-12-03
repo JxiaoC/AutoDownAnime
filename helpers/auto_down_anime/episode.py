@@ -14,9 +14,14 @@ tb_anime_list = model.AnimeList()
 tb_episode = model.EpisodeList()
 
 
-def list(page, limit):
+def list(page, limit, search_key, search_value):
     res = []
     Q = {}
+    if search_key and search_value:
+        if search_key in ['long_title']:
+            Q[search_key] = {'$regex': search_value}
+        else:
+            Q[search_key] = int(search_value) if tools.isint(search_value) else search_value
     for f in tb_episode.find(Q).skip((page - 1) * limit).limit(limit).sort('atime', -1):
         f['anime_info'] = tb_anime_list.find_one({'season_id': f.get('season_id', 0)})
         f['file_exists'] = os.path.exists(f.get('file_path', ''))

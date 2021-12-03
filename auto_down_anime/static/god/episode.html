@@ -7,7 +7,28 @@
     .layui-table img {
         max-width: 100%;
     }
+
+    .layui-table-tool{
+        text-align: left;
+    }
 </style>
+
+<div class="layui-form">
+    <div class="layui-form-item">
+        <div class="layui-inline" style="width: 120px">
+            <select id="search_key">
+                <option value="long_title">标题</option>
+                <option value="season_id">season id</option>
+            </select>
+        </div>
+        <div class="layui-inline">
+            <div class="layui-input-inline">
+                <input type="text" id="search_value" autocomplete="off" class="layui-input"/>
+            </div>
+            <button type="button" class="layui-btn" id="search">搜索</button>
+        </div>
+    </div>
+</div>
 
 <script type="text/html" id="toolbar">
     <div class="layui-btn-container">
@@ -24,7 +45,13 @@
 <table class="layui-hide anime-table" id="table" lay-filter="table"></table>
 <script>
     var tableIns;
+    var season_id = GetQueryString('season_id', true);
+    if (season_id){
+        $('#search_value').val(season_id);
+        $('#search_key').val('season_id');
+    }
     layui.use('table', function () {
+        var form = layui.form;
         var table = layui.table;
 
         tableIns = table.render({
@@ -112,6 +139,10 @@
                 , {field: 'file_exists', title: '文件存在', width: 110}
                 , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 160}
             ]]
+            , where: {
+                search_value: $('#search_value').val(),
+                search_key: $('#search_key').val()
+            }
             , page: true
             , parseData: function (res) {
                 return {
@@ -196,5 +227,17 @@
                 });
             }
         });
+        form.render();
     });
+
+    $('#search').click(function () {
+        var search_key = $('#search_key').val();
+        var search_value = $('#search_value').val();
+        tableIns.reload({
+            where: {
+                search_value: search_value,
+                search_key: search_key
+            }
+        })
+    })
 </script>
