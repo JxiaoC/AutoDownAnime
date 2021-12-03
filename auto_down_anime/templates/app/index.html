@@ -40,14 +40,14 @@
                 <li class="layui-nav-item layui-nav-itemed js-content-list">
                     <a class="" href="javascript:;">番剧管理</a>
                     <dl class="layui-nav-child">
-                        <dd><a href="javascript:;" data-url="/static/god/anime.html?type=lives">番剧列表</a></dd>
-                        <dd><a href="javascript:;" data-url="/static/god/episode.html?type=lives">分集列表</a></dd>
+                        <dd><a href="javascript:;" data-url="/static/god/anime.html?t=">番剧列表</a></dd>
+                        <dd><a href="javascript:;" data-url="/static/god/episode.html?t=">分集列表</a></dd>
                     </dl>
                 </li>
                 <li class="layui-nav-item layui-nav-itemed js-content-list">
                     <a class="" href="javascript:;">系统管理</a>
                     <dl class="layui-nav-child">
-                        <dd><a href="javascript:;" data-url="/static/god/setting.html?type=lives">基本设置</a></dd>
+                        <dd><a href="javascript:;" data-url="/static/god/setting.html?t=">基本设置</a></dd>
                     </dl>
                 </li>
             </ul>
@@ -90,8 +90,14 @@
     }
 
     function loadUrl(url) {
+        console.log(url);
         history.pushState(null, null, '/god?url=' + url.replace(/\?/g, '<').replace(/&/g, '>'));
         $('#body').load(url);
+        $('dd a').each(function(){
+            if(url.indexOf($(this).data('url')) > -1){
+                $(this).parents('dd').addClass('layui-this');
+            }
+        })
     }
 
     if (GetQueryString('url')) {
