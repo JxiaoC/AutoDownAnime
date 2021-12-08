@@ -33,8 +33,11 @@ def read_pid():
 
 def start():
     for f in tb_anime.find({'end': {'$ne': True}}):
-        print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), '更新%s > %s' % (f['_id'], f['title']))
-        episode.ref_episode_data(f.get('season_id', 0))
+        try:
+            print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), '更新%s > %s' % (f['_id'], f['title']))
+            episode.ref_episode_data(f.get('season_id', 0))
+        except Exception as e:
+            print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), e)
 
 
 if __name__ == '__main__':

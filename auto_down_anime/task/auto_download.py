@@ -32,14 +32,17 @@ def read_pid():
 
 def start():
     for f in tb_episode.find({'down_status': 1}):
-        anime_info = tb_anime.find_one({'season_id': f.get('season_id', 0)})
-        if anime_info and not anime_info.get('down', False):
-            continue
-        print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), ' > download %s > %s', (f['_id'], f.get('long_title', '')))
-        d = downloader.Downloader(f['_id'])
-        d.start()
-        while not d.exit:
-            time.sleep(1)
+        try:
+            anime_info = tb_anime.find_one({'season_id': f.get('season_id', 0)})
+            if anime_info and not anime_info.get('down', False):
+                continue
+            print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), ' > download %s > %s', (f['_id'], f.get('long_title', '')))
+            d = downloader.Downloader(f['_id'])
+            d.start()
+            while not d.exit:
+                time.sleep(1)
+        except Exception as e:
+            print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), e)
 
 
 if __name__ == '__main__':
