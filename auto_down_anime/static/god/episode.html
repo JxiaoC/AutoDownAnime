@@ -34,6 +34,11 @@
     <div class="layui-btn-container">
         <button class="layui-btn layui-btn-sm" lay-event="del_all">批量删除</button>
         <button class="layui-btn layui-btn-sm" lay-event="reset_all">批量重置</button>
+        <button class="layui-btn layui-btn-sm layui-btn-normal" lay-event="down_status" data-status="-1">全部</button>
+        <button class="layui-btn layui-btn-sm" lay-event="down_status" data-status="2">下载中</button>
+        <button class="layui-btn layui-btn-sm layui-btn-warm" lay-event="down_status" data-status="1">未下载</button>
+        <button class="layui-btn layui-btn-sm layui-btn-danger" lay-event="down_status" data-status="3">下载失败</button>
+        <button class="layui-btn layui-btn-sm layui-btn-normal" lay-event="down_status" data-status="0">下载完成</button>
     </div>
 </script>
 
@@ -45,6 +50,9 @@
 <table class="layui-hide anime-table" id="table" lay-filter="table"></table>
 <script>
     var tableIns;
+    var down_status=-1;
+    var search_key = '';
+    var search_value = '';
     var season_id = GetQueryString('season_id', true);
     if (season_id){
         $('#search_value').val(season_id);
@@ -141,7 +149,8 @@
             ]]
             , where: {
                 search_value: $('#search_value').val(),
-                search_key: $('#search_key').val()
+                search_key: $('#search_key').val(),
+                down_status: down_status
             }
             , page: true
             , parseData: function (res) {
@@ -195,6 +204,16 @@
                         })
                     });
                     break;
+                case 'down_status':
+                    down_status = $(this).data('status');
+                    tableIns.reload({
+                        where: {
+                            search_value: search_value,
+                            search_key: search_key,
+                            down_status: down_status
+                        }
+                    })
+                    break;
             }
         });
 
@@ -231,12 +250,13 @@
     });
 
     $('#search').click(function () {
-        var search_key = $('#search_key').val();
-        var search_value = $('#search_value').val();
+        search_key = $('#search_key').val();
+        search_value = $('#search_value').val();
         tableIns.reload({
             where: {
                 search_value: search_value,
-                search_key: search_key
+                search_key: search_key,
+                down_status: down_status
             }
         })
     })

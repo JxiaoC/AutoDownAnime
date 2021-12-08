@@ -76,7 +76,8 @@ class EpisodeHandler(BaseHandler):
         limit = int(self.get_argument('limit', '10'))
         search_key = self.get_argument('search_key', '')
         search_value = self.get_argument('search_value', '')
-        list, count = episode.list(page, limit, search_key, search_value)
+        down_status = int(self.get_argument('down_status', '-1'))
+        list, count = episode.list(page, limit, search_key, search_value, down_status)
         self._data = {
             'list': list,
             'count': count,
