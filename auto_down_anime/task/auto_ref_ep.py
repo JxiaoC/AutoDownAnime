@@ -1,4 +1,5 @@
 # 定时刷新分集列表
+import datetime
 import os
 import time
 import realpath
@@ -32,7 +33,7 @@ def read_pid():
 
 def start():
     for f in tb_anime.find({'end': {'$ne': True}}):
-        print('更新%s > %s' % (f['_id'], f['title']))
+        print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), '更新%s > %s' % (f['_id'], f['title']))
         episode.ref_episode_data(f.get('season_id', 0))
 
 
@@ -44,10 +45,10 @@ if __name__ == '__main__':
             exit(0)
     write_pid()
 
-    print("auto refresh episode info running...")
+    print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), 'auto refresh episode info running...')
     while True:
         try:
             start()
-        except:
-            pass
+        except Exception as e:
+            print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), e)
         time.sleep(600)

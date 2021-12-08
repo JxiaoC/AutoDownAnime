@@ -1,4 +1,5 @@
 # 定时脚本
+import datetime
 import os
 import time
 import realpath
@@ -34,7 +35,7 @@ def start():
         anime_info = tb_anime.find_one({'season_id': f.get('season_id', 0)})
         if anime_info and not anime_info.get('down', False):
             continue
-        print('download %s > %s', (f['_id'], f.get('long_title', '')))
+        print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), ' > download %s > %s', (f['_id'], f.get('long_title', '')))
         d = downloader.Downloader(f['_id'])
         d.start()
         while not d.exit:
@@ -49,10 +50,10 @@ if __name__ == '__main__':
             exit(0)
     write_pid()
 
-    print("auto download running...")
+    print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), " > auto download running...")
     while True:
         try:
             start()
-        except:
-            pass
+        except Exception as e:
+            print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), e)
         time.sleep(60)
