@@ -34,6 +34,16 @@
         </div>
     </div>
 
+    <div class="layui-form-item"> <label class="layui-form-label">Server酱SendKey</label>
+        <div class="layui-input-inline" style="width: 600px">
+            <input id="server_jiang_send_key" type="text" autocomplete="off" placeholder="server酱SendKey, 用于接受推送服务" class="layui-input">
+            <div class="tip">填入SendKey后将会自动发送推送到微信, 将在登录失效\下载完成时发送推送信息 <a href="https://sct.ftqq.com/" target="_blank">Server酱</a></div>
+        </div>
+        <div class="layui-input-inline">
+            <button type="submit" class="layui-btn layui-btn-normal" lay-submit="" lay-filter="test_server_jiang">测试</button>
+        </div>
+    </div>
+
     <div class="layui-form-item"> <label class="layui-form-label">文件名称</label>
         <div class="layui-input-block">
             <input id="file_name" type="text" autocomplete="off" placeholder="文件名称" class="layui-input" oninput="file_name_show();">
@@ -84,9 +94,21 @@
                 'save_dir_path': document.querySelector('#save_dir_path').value,
                 'file_name': document.querySelector('#file_name').value,
                 'quality': document.querySelector('#quality').value,
-                'add_auto_down': document.querySelector('#add_auto_down').value
+                'add_auto_down': document.querySelector('#add_auto_down').value,
+                'server_jiang_send_key': document.querySelector('#server_jiang_send_key').value
             }, function(res){
                 layer.alert('ok');
+            })
+        });
+
+        form.on('submit(test_server_jiang)', function (data) {
+            $.post('/god/setting/test_server_jiang', function(res){
+                res = JSON.parse(res);
+                    if (res.code === -1) {
+                        layer.alert(res.msg);
+                    } else {
+                        layer.alert('ok');
+                    }
             })
         });
         form.render();
@@ -100,6 +122,7 @@
         document.querySelector('#file_name').value = res.res.file_name;
         document.querySelector('#quality').value = res.res.quality;
         document.querySelector('#add_auto_down').value = res.res.add_auto_down;
+        document.querySelector('#server_jiang_send_key').value = res.res.server_jiang_send_key;
         file_name_show();
         form.render();
     })

@@ -106,6 +106,9 @@ class SettingHandler(BaseHandler):
         file_name = self.get_argument('file_name', '')
         self._data = setting.get_file_name(file_name)
 
+    def do_test_server_jiang(self):
+        self._data = setting.send_server_jiang_test()
+
     def do_save(self):
         cookie = self.get_argument('cookie', '')
         ffmpeg_path = self.get_argument('ffmpeg_path', '')
@@ -113,5 +116,6 @@ class SettingHandler(BaseHandler):
         file_name = self.get_argument('file_name', '')
         quality = self.get_argument('quality', '')
         add_auto_down = self.get_argument('add_auto_down', 'true')
-        self._data = setting.save(cookie, ffmpeg_path, save_dir_path, file_name, quality, add_auto_down)
+        server_jiang_send_key = self.get_argument('server_jiang_send_key', '')
+        self._data = setting.save(cookie, ffmpeg_path, save_dir_path, file_name, quality, add_auto_down, server_jiang_send_key)
 

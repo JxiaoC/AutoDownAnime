@@ -7,8 +7,8 @@ import realpath
 import psutil as psutil
 
 from models.auto_down_anime import model
-from helpers.auto_down_anime import episode
-from lib import downloader
+from helpers.auto_down_anime import episode, setting
+from lib import tools
 
 tb_episode = model.EpisodeList()
 tb_anime = model.AnimeList()
@@ -51,6 +51,12 @@ if __name__ == '__main__':
     print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), 'auto refresh episode info running...')
     while True:
         try:
+            if True and\
+                    (datetime.datetime.now() - setting.get().get('cookie_disabled_last_send_time', datetime.datetime(2000, 1, 1))).days >= 1:
+                tools.send_server_jiang_msg('自动番剧下载 - 登录失效', 'cookie已经失效, 请尽快重新设置以免影响下载和分集下载质量')
+                setting.tb_setting.update({}, {'$set': {
+                    'cookie_disabled_last_send_time': datetime.datetime.now()
+                }})
             start()
         except Exception as e:
             print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), e)

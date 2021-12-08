@@ -1,6 +1,8 @@
 import datetime
 import json
 import os
+import random
+from urllib.parse import quote
 
 from bson import ObjectId
 from cPython import cPython as cp
@@ -55,12 +57,15 @@ def get_bilibili_username():
     try:
         return get_bilibili_userinfo()['uname']
     except:
-        return '登录失效'
+        return '登录失效, 请重新替换cookie'
 
 
 def get_file_path(file_name='', ep_id=None):
+    ep_info = None
     if not ep_id:
-        ep_info = tb_episode.find_one()
+        total = tb_episode.find().count()
+        if total > 0:
+            ep_info = tb_episode.find().skip(random.randint(0, total - 1)).limit(1)[0]
     else:
         ep_info = tb_episode.find_by_id(ep_id)
 
@@ -139,6 +144,15 @@ def chinese2digits(uchars_chinese):
         else:
             total = total + r * val
     return total
+
+
+def send_server_jiang_msg(title, desp):
+    url = 'https://sctapi.ftqq.com/%s.send?title=%s&desp=%s' % (
+        setting.get().get('server_jiang_send_key', ''),
+        quote(title),
+        quote(desp),
+    )
+    cp.get_html(url)
 
 
 if __name__ == '__main__':

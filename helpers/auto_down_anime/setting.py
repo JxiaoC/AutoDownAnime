@@ -17,6 +17,8 @@ def get():
         _ = {
             'cookie': '',
             'ffmpeg_path': '',
+            'server_jiang_send_key': '',
+            'cookie_disabled_last_send_time': datetime.datetime(2000, 1, 1),
             'save_dir_path': '',
             'quality': 120,
             'file_name': '%anime_title%/Season %season%/%ep_title% S%season%E%ep_num%',
@@ -30,13 +32,18 @@ def get_file_name(file_name):
     return tools.get_file_path(file_name.strip())
 
 
-def save(cookie, ffmpeg_path, save_dir_path, file_name, quality, add_auto_down):
+def send_server_jiang_test():
+    tools.send_server_jiang_msg('自动番剧下载管理后台', '当你收到这条消息时则表示配置成功!')
+
+
+def save(cookie, ffmpeg_path, save_dir_path, file_name, quality, add_auto_down, server_jiang_send_key):
     if save_dir_path.endswith('/'):
         save_dir_path = save_dir_path[:-1]
     if file_name.startswith('/'):
         file_name = file_name[1:]
     tb_setting.update({}, {'$set': {
         'cookie': cookie,
+        'server_jiang_send_key': server_jiang_send_key,
         'quality': int(quality),
         'ffmpeg_path': ffmpeg_path.strip(),
         'save_dir_path': save_dir_path.strip(),
