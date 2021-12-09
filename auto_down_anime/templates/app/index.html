@@ -25,12 +25,12 @@
     <div class="layui-header">
         <div class="layui-logo">自动番剧下载管理后台</div>
         <ul class="layui-nav layui-layout-right">
-        <li class="layui-nav-item">
-        <a href="javascript:;">
-        {{ username }}
-        </a>
-        </li>
-        <span class="layui-nav-bar" style="left: 75px; top: 55px; width: 0px; opacity: 0;"></span></ul>
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    {{ username }}
+                </a>
+            </li>
+            <span class="layui-nav-bar" style="left: 75px; top: 55px; width: 0px; opacity: 0;"></span></ul>
     </div>
 
     <div class="layui-side layui-bg-black">
@@ -93,8 +93,8 @@
         console.log(url);
         history.pushState(null, null, '/god?url=' + url.replace(/\?/g, '<').replace(/&/g, '>'));
         $('#body').load(url);
-        $('dd a').each(function(){
-            if(url.indexOf($(this).data('url')) > -1){
+        $('dd a').each(function () {
+            if (url.indexOf($(this).data('url')) > -1) {
                 $(this).parents('dd').addClass('layui-this');
             }
         })
@@ -105,7 +105,7 @@
     }
 
     function formatDate(now) {
-        if(!now) return 'N/A';
+        if (!now) return 'N/A';
         now = new Date(now * 1000);
         var year = now.getFullYear();
         var month = now.getMonth() + 1;
@@ -114,6 +114,36 @@
         var minute = now.getMinutes();
         var second = now.getSeconds();
         return year + "-" + month + "-" + date + " " + hour + ":" + minute + ":" + second;
+    }
+
+    // 计算时间差
+    function handleDate(dateTimeStamp) {
+        var minute = 1000 * 60;
+        var hour = minute * 60;
+        var day = hour * 24;
+        var result = '';
+        var now = new Date().getTime();
+        var diffValue = now - dateTimeStamp;
+        if (diffValue < 0) {
+            console.log("时间不对劲,服务器创建时间与当前时间不同步");
+            return "刚刚";
+        }
+        var dayC = diffValue / day;
+        var hourC = diffValue / hour;
+        var minC = diffValue / minute;
+        if (parseInt(dayC) > 30) {
+            result = formatDate(dateTimeStamp);
+        } else if (parseInt(dayC) > 1) {
+            result = "" + parseInt(dayC) + "天前";
+        } else if (parseInt(dayC) === 1) {
+            result = "昨天";
+        } else if (hourC >= 1) {
+            result = "" + parseInt(hourC) + "小时前";
+        } else if (minC >= 5) {
+            result = "" + parseInt(minC) + "分钟前";
+        } else
+            result = "刚刚";
+        return result;
     }
 </script>
 <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");

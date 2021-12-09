@@ -44,7 +44,7 @@ class EpisodeList(Model):
         'title': 标题(一般是数字, 第几集)
         'long_title': 长标题(这才叫标题)
         'atime': 添加时间
-        'down_time': 下载开始时间
+        'down_time': 下载信息最后更新时间
         'complete_time': 下载完成时间
         'season_id': season_id
         'quality': 画质

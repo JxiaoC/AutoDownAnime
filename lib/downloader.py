@@ -104,7 +104,7 @@ class Downloader:
             return None
 
     def start(self):
-        tb_episode.update({'_id': self.ep_id}, {'$set': {'down_text': self.down_text, 'down_status': 2}})
+        tb_episode.update({'_id': self.ep_id}, {'$set': {'down_text': self.down_text, 'down_status': 2, 'down_time': datetime.datetime.now()}})
         threading.Thread(target=self.thread_start).start()
         threading.Thread(target=self.thread_print).start()
 
@@ -121,7 +121,7 @@ class Downloader:
                 self.fail = True
                 self.down_text = '下载超时'
                 self.complete = True
-            tb_episode.update({'_id': self.ep_id}, {'$set': {'down_text': self.down_text, 'down_status': 2}})
+            tb_episode.update({'_id': self.ep_id}, {'$set': {'down_text': self.down_text, 'down_status': 2, 'down_time': datetime.datetime.now()}})
             time.sleep(1)
         if self.fail:
             tb_episode.update({'_id': self.ep_id}, {'$set': {'down_status': 3}})
