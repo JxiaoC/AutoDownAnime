@@ -124,14 +124,13 @@
                 }
                 , {
                     field: 'down_status', title: '当前状态', width: 260, templet: function (res) {
-                        return '(' + handleDate(res.down_time * 1000) + ') ' + res.down_text;
                         switch (res.down_status) {
                             case 0:
                                 return '完成';
                             case 1:
                                 return '未开始';
                             case 2:
-                                return res.down_time + res.down_text;
+                                return '(' + handleDate(res.down_time * 1000) + ') ' + res.down_text;
                             case 3:
                                 return '下载出错';
                         }
