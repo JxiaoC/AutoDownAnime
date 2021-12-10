@@ -107,7 +107,7 @@ class Setting(Model):
         'cookie_disabled_last_send_time': cookie失效, 最后通知时间, 用于限制通知发送频率
         'add_auto_down': 添加后自动开始下载
     """
-    name = 'log_list'
+    name = 'setting'
 
     field = {
         'cookie':                           (str,          None),
