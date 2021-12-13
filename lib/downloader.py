@@ -65,6 +65,8 @@ class Downloader:
                 self.header['referer'] = 'https://www.bilibili.com/bangumi/play/ep%s' % episode_id
                 data = cp.get_html_for_requests(url, headers=self.header)
                 data = json.loads(data)
+                if data['result']['message'] == 'No video info.':
+                    raise ResponseMsg('No video info.')
                 self.quality = data['result']['quality']
                 for f in data['result']['dash']['video']:
                     if f['id'] == self.quality:
