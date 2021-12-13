@@ -124,7 +124,7 @@ class Downloader:
             tb_episode.update({'_id': self.ep_id}, {'$set': {'down_text': self.down_text, 'down_status': 2, 'down_time': datetime.datetime.now()}})
             time.sleep(1)
         if self.fail:
-            tb_episode.update({'_id': self.ep_id}, {'$set': {'down_status': 3}})
+            tb_episode.update({'_id': self.ep_id}, {'$set': {'down_status': 3, 'down_text': self.down_text}})
         else:
             tb_episode.update({'_id': self.ep_id}, {'$set': {
                 'down_status': 0,

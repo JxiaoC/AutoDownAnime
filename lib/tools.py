@@ -56,8 +56,8 @@ def get_bilibili_userinfo():
 def get_bilibili_username():
     try:
         return get_bilibili_userinfo()['uname']
-    except:
-        return '登录失效, 请重新替换cookie'
+    except Exception as e:
+        return '登录失效, %s' % e
 
 
 def get_file_path(file_name='', ep_id=None):

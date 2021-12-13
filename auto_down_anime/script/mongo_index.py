@@ -13,6 +13,8 @@ _.ensure_index([('season_id', -1), ('atime', -1)])
 
 
 _ = model.EpisodeList()
+_.ensure_index([('id', -1)])
+_.ensure_index([('end', -1)])
 _.ensure_index([('atime', -1)])
 _.ensure_index([('season_id', -1), ('atime', -1)])
 _.ensure_index([('down_status', -1), ('atime', -1)])
