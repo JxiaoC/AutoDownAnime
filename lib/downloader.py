@@ -56,7 +56,7 @@ class Downloader:
                     ep_info.get('aid', ''),
                     ep_info.get('bid', ''),
                     ep_info.get('cid', ''),
-                    tb_setting.find_one().get('quality', 120),
+                    int(tb_setting.find_one().get('quality', 120)),
                     episode_id,
                     hashlib.md5(str(time.time()).encode()).hexdigest(),
                 )
