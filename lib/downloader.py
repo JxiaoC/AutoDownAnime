@@ -99,6 +99,7 @@ class Downloader:
         except Exception as e:
             print(data)
             print('下载地址解析失败, %s' % e)
+            self.down_text = '下载地址解析失败, %s' % e
             self.fail = True
             self.complete = True
             return None
