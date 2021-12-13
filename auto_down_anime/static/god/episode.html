@@ -132,7 +132,7 @@
                             case 2:
                                 return '(' + handleDate(res.down_time * 1000) + ') ' + res.down_text;
                             case 3:
-                                return '下载出错';
+                                return '下载出错: ' + res.down_text;
                         }
                     }
                 }
