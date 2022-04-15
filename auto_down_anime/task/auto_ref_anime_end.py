@@ -40,14 +40,19 @@ def start():
                 data = json.loads(
                     cp.get_html_for_requests('https://api.bilibili.com/pgc/review/user?media_id=%s' % f.get('media_id', ''),
                                              headers=tools.gen_http_header()))
-                end = data['result']['media']['new_ep']['index_show'].startswith('全')
-                if end:
-                    tb_anime.update({'_id': f['_id']}, {'$set': {
-                        'end': end
-                    }})
-                    print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), '完结, 更新%s > %s, end: %s' % (f['_id'], f['title'], end))
-                else:
-                    print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), '未完结%s > %s' % (f['_id'], f['title']))
+                U = {'end': data['result']['media']['new_ep']['index_show'].startswith('全')}
+                try:
+                    U['rating_count'] = data['result']['media']['rating']['count']
+                except Exception as e:
+                    U['rating_count'] = 0
+
+                try:
+                    U['rating_score'] = data['result']['media']['rating']['score']
+                except Exception as e:
+
+                    U['rating_count'] = 0
+                    tb_anime.update({'_id': f['_id']}, {'$set': U})
+                    print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), '更新%s > %s, end: %s' % (f['_id'], f['title'], U))
             except Exception as e:
                 print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), e)
         except Exception as e:
