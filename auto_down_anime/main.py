@@ -36,8 +36,15 @@ def guardian_ref_ep():
         time.sleep(60)
 
 
+def guardian_ref_anime_end():
+    while True:
+        os.popen('python3 task/auto_ref_anime_end.py > Auto_ref_anime_end.log').read()
+        time.sleep(60)
+
+
 if __name__ == '__main__':
     threading.Thread(target=guardian_auto_download).start()
     threading.Thread(target=guardian_ref_ep).start()
+    threading.Thread(target=guardian_ref_anime_end).start()
     tornado.options.parse_command_line()
     turbo.app.start(options.port)

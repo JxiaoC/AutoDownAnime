@@ -103,6 +103,7 @@ class Setting(Model):
         'ffmpeg_path': ffmpeg路径
         'save_dir_path': 保存文件夹
         'file_name': 保存名称
+        'quality': 下载画质
         'server_jiang_send_key': server酱SendKey
         'cookie_disabled_last_send_time': cookie失效, 最后通知时间, 用于限制通知发送频率
         'add_auto_down': 添加后自动开始下载
@@ -114,6 +115,7 @@ class Setting(Model):
         'ffmpeg_path':                      (str,          None),
         'save_dir_path':                    (str,          None),
         'file_name':                        (str,          None),
+        'quality':                          (int,          None),
         'server_jiang_send_key':            (str,          None),
         'cookie_disabled_last_send_time':   (datetime,     None),
         'add_auto_down':                    (bool,         None),
