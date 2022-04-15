@@ -1,4 +1,4 @@
-# 定时刷新分集列表
+# 定时刷新连载中番剧的评分和连载状态
 import datetime
 import json
 import os
@@ -36,25 +36,21 @@ def read_pid():
 def start():
     for f in tb_anime.find({'end': {'$ne': True}}):
         try:
+            data = json.loads(
+                cp.get_html_for_requests('https://api.bilibili.com/pgc/review/user?media_id=%s' % f.get('media_id', ''),
+                                         headers=tools.gen_http_header()))
+            U = {'end': data['result']['media']['new_ep']['index_show'].startswith('全')}
             try:
-                data = json.loads(
-                    cp.get_html_for_requests('https://api.bilibili.com/pgc/review/user?media_id=%s' % f.get('media_id', ''),
-                                             headers=tools.gen_http_header()))
-                U = {'end': data['result']['media']['new_ep']['index_show'].startswith('全')}
-                try:
-                    U['rating_count'] = data['result']['media']['rating']['count']
-                except Exception as e:
-                    U['rating_count'] = 0
-
-                try:
-                    U['rating_score'] = data['result']['media']['rating']['score']
-                except Exception as e:
-
-                    U['rating_count'] = 0
-                    tb_anime.update({'_id': f['_id']}, {'$set': U})
-                    print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), '更新%s > %s, end: %s' % (f['_id'], f['title'], U))
+                U['rating_count'] = data['result']['media']['rating']['count']
             except Exception as e:
-                print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), e)
+                U['rating_count'] = 0
+
+            try:
+                U['rating_score'] = data['result']['media']['rating']['score']
+            except Exception as e:
+                U['rating_count'] = 0
+            tb_anime.update({'_id': f['_id']}, {'$set': U})
+            print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), '更新%s > %s, end: %s' % (f['_id'], f['title'], U))
         except Exception as e:
             print(datetime.datetime.now().strftime('%Y-%m-%d,%H:%m:%S'), e)
 
