@@ -59,11 +59,13 @@ case $1 in
         done
         ps aux | grep auto_ref_ep.py | awk {'print $2'} | xargs sudo kill -9
         ps aux | grep auto_download.py | awk {'print $2'} | xargs sudo kill -9
+        ps aux | grep auto_ref_anime_end.py | awk {'print $2'} | xargs sudo kill -9
         ;;
 
     (restart)
         ps aux | grep auto_ref_ep.py | awk {'print $2'} | xargs sudo kill -9
         ps aux | grep auto_download.py | awk {'print $2'} | xargs sudo kill -9
+        ps aux | grep auto_ref_anime_end.py | awk {'print $2'} | xargs sudo kill -9
 
         for i in `seq $PORT_RANGE`
         do
