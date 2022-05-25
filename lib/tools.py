@@ -91,7 +91,6 @@ def get_file_path(file_name='', ep_id=None):
     file_name = file_name.replace('>', ']')
     file_name = file_name.replace('?', '？')
     file_name = file_name.replace('\\', '_')
-    file_name = file_name.replace('/', '_')
     file_name = file_name.replace(':', '_')
     file_name = file_name.replace('*', '_')
     file_name = file_name.replace('"', '_')
